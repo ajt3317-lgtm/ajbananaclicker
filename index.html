@@ -214,6 +214,13 @@
     font-weight: bold;
     text-shadow: 0 0 6px rgba(206,147,216,.5);
   }
+  .rares {
+    font-size: 15px;
+    margin-top: 4px;
+    font-weight: bold;
+    color: #6d4c00;
+  }
+  .rares span { cursor: help; }
 
   .reset {
     margin-top: 14px;
@@ -304,6 +311,13 @@
       <div class="per-sec"><span id="perSec">0</span>/sec &middot; <span id="perClick">1</span>/click</div>
       <div class="seeds">🌱 <span id="seeds">0</span> seeds</div>
       <div class="aura" id="auraStat" style="display:none;">✨ <span id="aura">0</span> aura (+<span id="auraPct">0</span>%)</div>
+      <div class="rares" id="raresStat" style="display:none;">
+        <span title="Golden bananas — 100 → 1 diamond">🌟 <span id="goldens">0</span></span>
+        &middot; <span title="Diamond bananas — 100 → 1 obsidian">💎 <span id="diamonds">0</span></span>
+        &middot; <span title="Obsidian bananas — 100 → 1 uranium">⚫ <span id="obsidians">0</span></span>
+        &middot; <span title="Uranium bananas — 100 → 1 plasma">☢️ <span id="uraniums">0</span></span>
+        &middot; <span title="Plasma bananas">🔮 <span id="plasmas">0</span></span>
+      </div>
     </div>
     <button class="banana-btn" id="banana" aria-label="banana">🍌</button>
   </div>
@@ -487,9 +501,40 @@ let state = {
   lifetime: 0,
   seeds: 0,
   aura: 0,
+  goldens: 0,
+  diamonds: 0,
+  obsidians: 0,
+  uraniums: 0,
+  plasmas: 0,
   owned: {},
   seedUp: {},
 };
+
+function grantGolden() {
+  const out = { diamond: false, obsidian: false, uranium: false, plasma: false };
+  state.goldens++;
+  if (state.goldens >= 100) {
+    state.goldens -= 100;
+    state.diamonds++;
+    out.diamond = true;
+    if (state.diamonds >= 100) {
+      state.diamonds -= 100;
+      state.obsidians++;
+      out.obsidian = true;
+      if (state.obsidians >= 100) {
+        state.obsidians -= 100;
+        state.uraniums++;
+        out.uranium = true;
+        if (state.uraniums >= 100) {
+          state.uraniums -= 100;
+          state.plasmas++;
+          out.plasma = true;
+        }
+      }
+    }
+  }
+  return out;
+}
 
 const REBIRTH_MIN_LIFETIME = 1e7;
 function auraMult()       { return 1 + state.aura * 0.05; }
@@ -507,6 +552,11 @@ function load() {
     state.lifetime = s.lifetime || 0;
     state.seeds = s.seeds || 0;
     state.aura = s.aura || 0;
+    state.goldens   = s.goldens   || 0;
+    state.diamonds  = s.diamonds  || 0;
+    state.obsidians = s.obsidians || 0;
+    state.uraniums  = s.uraniums  || 0;
+    state.plasmas   = s.plasmas   || 0;
     UPGRADES.forEach(u => state.owned[u.id] = (s.owned && s.owned[u.id]) || 0);
     SEED_UPGRADES.forEach(x => state.seedUp[x.id] = (s.seedUp && s.seedUp[x.id]) || 0);
   } catch (e) {}
@@ -590,6 +640,12 @@ const elSeeds     = document.getElementById('seeds');
 const elAuraStat  = document.getElementById('auraStat');
 const elAura      = document.getElementById('aura');
 const elAuraPct   = document.getElementById('auraPct');
+const elRaresStat = document.getElementById('raresStat');
+const elGoldens   = document.getElementById('goldens');
+const elDiamonds  = document.getElementById('diamonds');
+const elObsidians = document.getElementById('obsidians');
+const elUraniums  = document.getElementById('uraniums');
+const elPlasmas   = document.getElementById('plasmas');
 const elBanana    = document.getElementById('banana');
 const elItems     = document.getElementById('items');
 const elClickItems= document.getElementById('clickItems');
@@ -708,6 +764,16 @@ function render() {
   } else {
     elAuraStat.style.display = 'none';
   }
+  if (state.goldens > 0 || state.diamonds > 0 || state.obsidians > 0 || state.uraniums > 0 || state.plasmas > 0) {
+    elRaresStat.style.display = '';
+    elGoldens.textContent   = state.goldens;
+    elDiamonds.textContent  = state.diamonds;
+    elObsidians.textContent = state.obsidians;
+    elUraniums.textContent  = state.uraniums;
+    elPlasmas.textContent   = state.plasmas;
+  } else {
+    elRaresStat.style.display = 'none';
+  }
   const gain = auraGain(state.lifetime);
   if (canRebirth()) {
     elRebirth.disabled = false;
@@ -748,6 +814,11 @@ elReset.addEventListener('click', () => {
   state.lifetime = 0;
   state.seeds = 0;
   state.aura = 0;
+  state.goldens = 0;
+  state.diamonds = 0;
+  state.obsidians = 0;
+  state.uraniums = 0;
+  state.plasmas = 0;
   UPGRADES.forEach(u => state.owned[u.id] = 0);
   SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
   save();
@@ -795,6 +866,10 @@ const ADMIN_ACTIONS = {
     state.lifetime = Infinity;
     state.seeds = Infinity;
     state.aura = Infinity;
+    state.diamonds = 9999;
+    state.obsidians = 9999;
+    state.uraniums = 9999;
+    state.plasmas = 9999;
     UPGRADES.forEach(u => state.owned[u.id] = 500);
     SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 50);
   },
@@ -860,10 +935,16 @@ function spawnGolden() {
     state.bananas += bonus;
     state.lifetime += bonus;
     state.seeds += sGain;
+    const cascade = grantGolden();
     const r = elMain.getBoundingClientRect();
     const f = document.createElement('div');
     f.className = 'bonus-float';
-    f.innerHTML = '+' + fmt(bonus) + ' BONUS!<br>+' + sGain + ' 🌱';
+    let extra = '';
+    if (cascade.diamond)  extra += '<br>+1 💎 DIAMOND!';
+    if (cascade.obsidian) extra += '<br>+1 ⚫ OBSIDIAN!';
+    if (cascade.uranium)  extra += '<br>+1 ☢️ URANIUM!';
+    if (cascade.plasma)   extra += '<br>+1 🔮 PLASMA!';
+    f.innerHTML = '+' + fmt(bonus) + ' BONUS!<br>+' + sGain + ' 🌱' + extra;
     f.style.left = (e.clientX - r.left - 60) + 'px';
     f.style.top  = (e.clientY - r.top  - 20) + 'px';
     elMain.appendChild(f);
