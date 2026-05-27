@@ -26,6 +26,7 @@
     justify-content: center;
     padding: 20px;
     position: relative;
+    overflow: hidden;
   }
   h1 {
     font-size: 64px;
@@ -320,6 +321,213 @@
     font-size: 11px;
   }
   .admin-actions button:hover { background: #8e24aa; }
+
+  /* Auto Opener — distinctive look so it stands apart from regular upgrades */
+  .auto-opener-item {
+    border-color: #4dd0e1;
+    background: rgba(77, 208, 225, 0.10);
+  }
+  .auto-opener-item:hover:not(.disabled) {
+    background: rgba(77, 208, 225, 0.22);
+  }
+  .auto-opener-item .icon {
+    animation: opener-spin 2s linear infinite;
+  }
+  @keyframes opener-spin {
+    from { transform: rotate(-12deg); }
+    50%  { transform: rotate(12deg);  }
+    to   { transform: rotate(-12deg); }
+  }
+
+  /* See Banana button — sits under the main banana button */
+  .see-banana-btn {
+    margin-top: 10px;
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 3px solid #8b6f47;
+    border-radius: 14px;
+    color: #5a4426;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform .12s, background .12s;
+  }
+  .see-banana-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 248, 220, 0.95);
+  }
+
+  /* Banana Museum modal */
+  .museum-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    backdrop-filter: blur(4px);
+    animation: museumFadeIn 0.25s ease-out;
+  }
+  @keyframes museumFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .museum-modal {
+    background: linear-gradient(180deg, #f5e9cf 0%, #e8d5ad 100%);
+    border: 4px solid #5a7373;
+    border-radius: 20px;
+    padding: 40px 28px 20px;
+    width: min(500px, 92vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+  .museum-modal::-webkit-scrollbar { width: 8px; }
+  .museum-modal::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+  .museum-modal::-webkit-scrollbar-thumb { background: #8b6f47; border-radius: 4px; }
+  /* Decorative pediment above the museum modal */
+  .museum-pediment {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 90px solid transparent;
+    border-right: 90px solid transparent;
+    border-bottom: 32px solid #5a7373;
+    filter: drop-shadow(0 -2px 4px rgba(0,0,0,0.25));
+    pointer-events: none;
+    z-index: 2;
+  }
+  .museum-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #4a3a1e;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #fff8dc;
+  }
+  .museum-frame {
+    background: #fff;
+    border: 5px solid #8b6f47;
+    border-radius: 6px;
+    padding: 14px;
+    margin: 0 auto 12px;
+    width: 60%;
+    aspect-ratio: 3 / 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+  }
+  .museum-banana {
+    font-size: 76px;
+    line-height: 1;
+    transform: rotate(-18deg);
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25));
+  }
+  .museum-banana.locked {
+    color: #6b5a3a;
+    opacity: 0.45;
+    transform: none;
+    filter: blur(2px) drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+  .museum-caption {
+    color: #4a3a1e;
+    font-size: 14px;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+    min-height: 36px;
+  }
+  .museum-caption .name { font-size: 17px; font-weight: bold; display: block; margin-bottom: 4px; }
+  .museum-counter {
+    color: #5a4426;
+    font-size: 12px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.5px;
+  }
+  .museum-grid {
+    background: rgba(255, 248, 220, 0.5);
+    border: 2px solid #8b6f47;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 14px;
+    max-height: 220px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .museum-grid::-webkit-scrollbar { width: 8px; }
+  .museum-grid::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+  .museum-grid::-webkit-scrollbar-thumb { background: #8b6f47; border-radius: 4px; }
+  .museum-cell {
+    background: rgba(255, 255, 255, 0.6);
+    border: 2px solid transparent;
+    border-radius: 6px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform .08s, background .12s, border-color .12s;
+  }
+  .museum-cell:hover { transform: scale(1.1); background: rgba(255, 248, 220, 0.95); }
+  .museum-cell.locked {
+    background: rgba(70, 50, 30, 0.2);
+    color: #4a3a1e;
+    filter: grayscale(1);
+    opacity: 0.55;
+  }
+  .museum-cell.selected {
+    border-color: #ff6f00;
+    background: rgba(255, 213, 79, 0.7);
+    box-shadow: 0 0 8px rgba(255, 111, 0, 0.6);
+  }
+  /* Rare-tier museum banana styling — mirrors the .golden.<tier> filters used
+     by falling bananas so the museum exhibit matches the live game look. */
+  .museum-cell.tier-golden     { filter: drop-shadow(0 0 4px #fff59d) drop-shadow(0 0 8px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(1.15); }
+  .museum-cell.tier-diamond    { filter: drop-shadow(0 0 4px #4fc3f7) drop-shadow(0 0 8px #1976d2) hue-rotate(190deg) saturate(2.2) brightness(1.1); }
+  .museum-cell.tier-obsidian   { filter: drop-shadow(0 0 4px #ba68c8) drop-shadow(0 0 8px #4a148c) hue-rotate(260deg) saturate(2.2) brightness(0.45); }
+  .museum-cell.tier-uranium    { filter: drop-shadow(0 0 4px #76ff03) drop-shadow(0 0 8px #00c853) hue-rotate(90deg) saturate(2.2) brightness(1.05); }
+  .museum-cell.tier-plasma     { filter: drop-shadow(0 0 4px #ff4081) drop-shadow(0 0 8px #d500f9) hue-rotate(290deg) saturate(2.5) brightness(1.1); }
+  .museum-cell.tier-darkenergy { filter: brightness(0.08) contrast(6) drop-shadow(0 0 6px #6a1b9a) drop-shadow(0 0 12px #000); }
+  /* Bigger glows for the picture-frame display */
+  .museum-banana.tier-golden     { filter: drop-shadow(0 0 12px #fff59d) drop-shadow(0 0 24px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(1.15); }
+  .museum-banana.tier-diamond    { filter: drop-shadow(0 0 14px #4fc3f7) drop-shadow(0 0 28px #1976d2) hue-rotate(190deg) saturate(2.2) brightness(1.1); }
+  .museum-banana.tier-obsidian   { filter: drop-shadow(0 0 14px #ba68c8) drop-shadow(0 0 28px #4a148c) hue-rotate(260deg) saturate(2.2) brightness(0.45); }
+  .museum-banana.tier-uranium    { filter: drop-shadow(0 0 14px #76ff03) drop-shadow(0 0 28px #00c853) hue-rotate(90deg) saturate(2.2) brightness(1.05); }
+  .museum-banana.tier-plasma     { filter: drop-shadow(0 0 14px #ff4081) drop-shadow(0 0 28px #d500f9) hue-rotate(290deg) saturate(2.5) brightness(1.1); }
+  .museum-banana.tier-darkenergy { filter: brightness(0.08) contrast(6) drop-shadow(0 0 22px #6a1b9a) drop-shadow(0 0 40px #000); }
+  .museum-close {
+    background: #8b6f47;
+    color: #fff8dc;
+    border: none;
+    padding: 10px 26px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+  }
+  .museum-close:hover { background: #a3855a; }
 </style>
 </head>
 <body>
@@ -341,9 +549,12 @@
       </div>
     </div>
     <button class="banana-btn" id="banana" aria-label="banana">🍌</button>
+    <button class="see-banana-btn" id="seeBananaBtn" title="Open the Banana Museum to see what a banana actually looks like">🏛️ See Banana</button>
   </div>
   <div class="shop">
-    <h2>👆 Click Shop</h2>
+    <h2>🤖 Auto Opener</h2>
+    <div id="autoOpenerItem"></div>
+    <h2 style="margin-top:18px;">👆 Click Shop</h2>
     <div id="clickItems"></div>
     <h2 style="margin-top:18px;">🍌 Production</h2>
     <div id="items"></div>
@@ -380,15 +591,32 @@
         <button data-admin="x1000">×1000 🍌</button>
         <button data-admin="oneEach">+1 each upgrade</button>
         <button data-admin="tenEach">+10 each upgrade</button>
+        <button data-admin="autoOpener10">+10 🤖 Auto Opener</button>
+        <button data-admin="autoOpenerMax">Max 🤖 (Lv 1000)</button>
         <button data-admin="spawnGolden">Spawn golden 🍌</button>
         <button data-admin="maxSeeds">Max seed upgrades</button>
         <button data-admin="spawnDiamond">Spawn 💎 diamond</button>
         <button data-admin="spawnObsidian">Spawn ⚫ obsidian</button>
         <button data-admin="spawnUranium">Spawn ☢️ uranium</button>
+        <button data-admin="spawnPlasma" style="background:linear-gradient(135deg,#ffeb3b,#ff3d00);color:#3d0000;font-weight:bold;text-shadow:0 1px 0 rgba(255,255,255,0.4);box-shadow:0 0 8px rgba(255,193,7,0.7);">Spawn 🔮 plasma</button>
         <button data-admin="spawnDarkenergy">Spawn 🌑 dark energy</button>
         <button data-admin="infinite" style="grid-column:1/-1;background:#ffd54f;color:#6d4c00;font-weight:bold;">♾️ INFINITE ALL ♾️</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="museum-overlay" id="museumOverlay" style="display:none;">
+  <div class="museum-modal">
+    <div class="museum-pediment"></div>
+    <div class="museum-title">🏛️ Banana Museum 🍌</div>
+    <div class="museum-frame">
+      <div class="museum-banana" id="museumBigBanana">❓</div>
+    </div>
+    <div class="museum-caption" id="museumCaption"></div>
+    <div class="museum-counter" id="museumCounter"></div>
+    <div class="museum-grid" id="museumGrid"></div>
+    <button class="museum-close" id="museumClose">Close</button>
   </div>
 </div>
 
@@ -534,7 +762,55 @@ let state = {
   darkenergies: 0,
   owned: {},
   seedUp: {},
+  // Auto Opener: every real second catches up to `level` falling 🌟 bananas
+  // (including diamond/obsidian/uranium/plasma/dark-energy tiers) before they
+  // hit the ground. Bought with bananas; cost grows exponentially.
+  autoOpenerLevel: 0,
+  // Banana Museum collection: id → true once the player has clicked or bought
+  // that banana. Persists across rebirths so the museum stays full.
+  unlockedBananas: {},
 };
+
+// Full catalog of bananas the museum can display. Built once at startup from
+// UPGRADES + the rare tiers + the base banana.
+const MUSEUM_ENTRIES = (() => {
+  const list = [
+    { id: 'basic', icon: '🍌', name: 'Banana',                 hint: 'Click the banana button to unlock.' },
+  ];
+  UPGRADES.forEach(u => list.push({
+    id: u.id, icon: u.icon, name: u.name,
+    hint: `Buy at least one "${u.name}" to unlock.`
+  }));
+  list.push({ id: 'autoOpener', icon: '🤖', name: 'Banana Auto Opener',  hint: 'Buy the Auto Opener to unlock.' });
+  // Rare tiers render as a glowing 🍌 with the same CSS filter used by the
+  // falling banana animation — `tier` matches the .golden.<tier> class.
+  list.push({ id: 'golden',     icon: '🍌', tier: '',           name: 'Golden Banana',       hint: 'Catch a falling golden 🌟 banana to unlock.' });
+  list.push({ id: 'diamond',    icon: '🍌', tier: 'diamond',    name: 'Diamond Banana',      hint: 'Cascade from 100 goldens to unlock.' });
+  list.push({ id: 'obsidian',   icon: '🍌', tier: 'obsidian',   name: 'Obsidian Banana',     hint: 'Cascade from 100 diamonds to unlock.' });
+  list.push({ id: 'uranium',    icon: '🍌', tier: 'uranium',    name: 'Uranium Banana',      hint: 'Cascade from 100 obsidians to unlock.' });
+  list.push({ id: 'plasma',     icon: '🍌', tier: 'plasma',     name: 'Plasma Banana',       hint: 'Cascade from 100 uraniums to unlock.' });
+  list.push({ id: 'darkenergy', icon: '🍌', tier: 'darkenergy', name: 'Dark Energy Banana',  hint: 'Cascade from 100 plasmas to unlock.' });
+  return list;
+})();
+const MUSEUM_ENTRY_BY_ID = Object.fromEntries(MUSEUM_ENTRIES.map(e => [e.id, e]));
+
+function unlockBanana(id) {
+  if (!MUSEUM_ENTRY_BY_ID[id]) return;
+  if (state.unlockedBananas[id]) return;
+  state.unlockedBananas[id] = true;
+  // Live update if the museum is open (use getElementById so this is safe to
+  // call before the cached overlay reference is initialized).
+  const ov = document.getElementById('museumOverlay');
+  if (ov && ov.style.display === 'flex' && typeof renderMuseum === 'function') {
+    renderMuseum();
+  }
+}
+
+const AUTO_OPENER_BASE_COST = 1000;
+const AUTO_OPENER_COST_GROWTH = 1.6;
+function autoOpenerCost() {
+  return Math.ceil(AUTO_OPENER_BASE_COST * Math.pow(AUTO_OPENER_COST_GROWTH, state.autoOpenerLevel));
+}
 
 const RARE_ORDER = ['goldens', 'diamonds', 'obsidians', 'uraniums', 'plasmas', 'darkenergies'];
 const RARE_TIER_BY_FIELD = { goldens:'golden', diamonds:'diamond', obsidians:'obsidian', uraniums:'uranium', plasmas:'plasma', darkenergies:'darkenergy' };
@@ -577,6 +853,17 @@ function load() {
     state.darkenergies = s.darkenergies || 0;
     UPGRADES.forEach(u => state.owned[u.id] = (s.owned && s.owned[u.id]) || 0);
     SEED_UPGRADES.forEach(x => state.seedUp[x.id] = (s.seedUp && s.seedUp[x.id]) || 0);
+    state.autoOpenerLevel = s.autoOpenerLevel || 0;
+    state.unlockedBananas = (s.unlockedBananas && typeof s.unlockedBananas === 'object') ? s.unlockedBananas : {};
+    // Back-fill: any already-owned upgrade / level / rare counts unlock the
+    // matching museum entry so existing saves don't appear empty.
+    if (state.lifetime > 0) state.unlockedBananas.basic = true;
+    UPGRADES.forEach(u => { if (state.owned[u.id] > 0) state.unlockedBananas[u.id] = true; });
+    if (state.autoOpenerLevel > 0) state.unlockedBananas.autoOpener = true;
+    ['goldens','diamonds','obsidians','uraniums','plasmas','darkenergies'].forEach((field, i) => {
+      const tier = ['golden','diamond','obsidian','uranium','plasma','darkenergy'][i];
+      if (state[field] > 0) state.unlockedBananas[tier] = true;
+    });
   } catch (e) {}
 }
 function save() {
@@ -703,7 +990,34 @@ function makeItem(u, parent) {
   };
 }
 
+let autoOpenerEls = null;
+function buildAutoOpenerItem() {
+  const parent = document.getElementById('autoOpenerItem');
+  parent.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'item auto-opener-item';
+  div.innerHTML = `
+    <div class="icon">🤖</div>
+    <div class="info">
+      <div class="name">Banana Auto Opener</div>
+      <div class="desc" data-desc></div>
+    </div>
+    <div class="right">
+      <div class="cost">🍌<span data-cost></span></div>
+      <div class="owned">Lv <span data-owned></span></div>
+    </div>`;
+  div.addEventListener('click', buyAutoOpener);
+  parent.appendChild(div);
+  autoOpenerEls = {
+    root:  div,
+    cost:  div.querySelector('[data-cost]'),
+    owned: div.querySelector('[data-owned]'),
+    desc:  div.querySelector('[data-desc]'),
+  };
+}
+
 function buildShop() {
+  buildAutoOpenerItem();
   elClickItems.innerHTML = '';
   elItems.innerHTML = '';
   const sorted = [...UPGRADES].sort((a, b) => a.power - b.power);
@@ -735,6 +1049,17 @@ function buildShop() {
 }
 
 function updateShop() {
+  if (autoOpenerEls) {
+    const c = autoOpenerCost();
+    const lvl = state.autoOpenerLevel;
+    const opens = lvl === 1 ? '1 open' : `${lvl} opens`;
+    autoOpenerEls.cost.textContent  = fmtShop(c);
+    autoOpenerEls.owned.textContent = lvl;
+    autoOpenerEls.desc.innerHTML = lvl === 0
+      ? 'Auto-catches falling 🌟 bananas before they hit the ground. Upgrade to catch more at a time.'
+      : `Catches up to <b>${lvl}</b> falling banana${lvl === 1 ? '' : 's'} per second.`;
+    autoOpenerEls.root.classList.toggle('disabled', state.bananas < c);
+  }
   UPGRADES.forEach(u => {
     const els = itemEls[u.id];
     const c = costOf(u);
@@ -767,6 +1092,17 @@ function buy(u) {
   if (state.bananas < c) return;
   state.bananas -= c;
   state.owned[u.id]++;
+  unlockBanana(u.id);
+  render();
+  save();
+}
+
+function buyAutoOpener() {
+  const c = autoOpenerCost();
+  if (state.bananas < c) return;
+  state.bananas -= c;
+  state.autoOpenerLevel++;
+  unlockBanana('autoOpener');
   render();
   save();
 }
@@ -823,6 +1159,7 @@ elBanana.addEventListener('click', (e) => {
   const gain = perClick();
   state.bananas += gain;
   state.lifetime += gain;
+  unlockBanana('basic');
   const rect = elMain.getBoundingClientRect();
   popFloat(e.clientX - rect.left, e.clientY - rect.top, fmt(gain));
   render();
@@ -840,6 +1177,8 @@ elReset.addEventListener('click', () => {
   state.uraniums = 0;
   state.plasmas = 0;
   state.darkenergies = 0;
+  state.autoOpenerLevel = 0;
+  state.unlockedBananas = {};
   UPGRADES.forEach(u => state.owned[u.id] = 0);
   SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
   save();
@@ -880,10 +1219,13 @@ const ADMIN_ACTIONS = {
   x1000: () => { state.bananas *= 1000; },
   oneEach: () => UPGRADES.forEach(u => state.owned[u.id] += 1),
   tenEach: () => UPGRADES.forEach(u => state.owned[u.id] += 10),
+  autoOpener10:  () => { state.autoOpenerLevel += 10; },
+  autoOpenerMax: () => { state.autoOpenerLevel = Math.max(state.autoOpenerLevel, 1000); },
   spawnGolden:     () => spawnGolden('golden'),
   spawnDiamond:    () => spawnGolden('diamond'),
   spawnObsidian:   () => spawnGolden('obsidian'),
   spawnUranium:    () => spawnGolden('uranium'),
+  spawnPlasma:     () => spawnGolden('plasma'),
   spawnDarkenergy: () => spawnGolden('darkenergy'),
   maxSeeds: () => SEED_UPGRADES.forEach(s => state.seedUp[s.id] += 10),
   infinite: () => {
@@ -898,6 +1240,7 @@ const ADMIN_ACTIONS = {
     state.darkenergies = 9999;
     UPGRADES.forEach(u => state.owned[u.id] = 500);
     SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 50);
+    state.autoOpenerLevel = 1000;
   },
 };
 
@@ -916,12 +1259,14 @@ elRebirth.addEventListener('click', () => {
   state.aura += gain;
   state.bananas = 0;
   state.lifetime = 0;
+  state.autoOpenerLevel = 0;
   UPGRADES.forEach(u => state.owned[u.id] = 0);
   save();
   render();
 });
 
 let lastTick = performance.now();
+let autoOpenerTimer = 0;
 function tick(now) {
   const dt = (now - lastTick) / 1000;
   lastTick = now;
@@ -930,6 +1275,21 @@ function tick(now) {
     state.bananas += gain;
     state.lifetime += gain;
     render();
+  }
+  // Auto Opener: every real second, catch up to `level` falling bananas from
+  // the active list. Consume the timer even when level=0 so a fresh purchase
+  // doesn't trigger a backlog of catches.
+  autoOpenerTimer += dt;
+  while (autoOpenerTimer >= 1) {
+    autoOpenerTimer -= 1;
+    const N = state.autoOpenerLevel;
+    if (N > 0 && activeGoldens.length > 0) {
+      let toCatch = Math.min(N, activeGoldens.length);
+      // Catch the oldest goldens first (they're closest to falling off-screen)
+      while (toCatch-- > 0 && activeGoldens.length > 0) {
+        catchGolden(activeGoldens[0]);
+      }
+    }
   }
   requestAnimationFrame(tick);
 }
@@ -951,6 +1311,60 @@ const TIER_CONFIG = {
   darkenergy: { cls: 'darkenergy', bonusMult: 100000,label: '🌑 DARK ENERGY' },
 };
 
+// Active falling bananas the Auto Opener can target. Each entry holds the DOM
+// element, its tier/config, and the expiry timer so catchGolden can clear it.
+const activeGoldens = [];
+
+function catchGolden(entry, clickEvent) {
+  if (entry._caught) return;
+  entry._caught = true;
+  const { g, tier, cfg, removeTimer } = entry;
+  clearTimeout(removeTimer);
+  const bonus = goldenBonus() * cfg.bonusMult;
+  const sGain = seedsPerGolden();
+  state.bananas += bonus;
+  state.lifetime += bonus;
+  state.seeds += sGain;
+  const cascade = grantRare(tier);
+  unlockBanana(tier);
+  if (cascade.diamond)    unlockBanana('diamond');
+  if (cascade.obsidian)   unlockBanana('obsidian');
+  if (cascade.uranium)    unlockBanana('uranium');
+  if (cascade.plasma)     unlockBanana('plasma');
+  if (cascade.darkenergy) unlockBanana('darkenergy');
+  const r = elMain.getBoundingClientRect();
+  // Position the float at the click point when manual, otherwise center it on
+  // the falling banana (for auto-catches the user didn't click anywhere).
+  let fx, fy;
+  if (clickEvent) {
+    fx = clickEvent.clientX - r.left - 60;
+    fy = clickEvent.clientY - r.top  - 20;
+  } else {
+    const gRect = g.getBoundingClientRect();
+    fx = gRect.left - r.left + gRect.width / 2 - 60;
+    fy = gRect.top  - r.top  + gRect.height / 2 - 20;
+  }
+  const f = document.createElement('div');
+  f.className = 'bonus-float';
+  let extra = '';
+  if (cascade.diamond)    extra += '<br>+1 💎 DIAMOND!';
+  if (cascade.obsidian)   extra += '<br>+1 ⚫ OBSIDIAN!';
+  if (cascade.uranium)    extra += '<br>+1 ☢️ URANIUM!';
+  if (cascade.plasma)     extra += '<br>+1 🔮 PLASMA!';
+  if (cascade.darkenergy) extra += '<br>+1 🌑 DARK ENERGY!';
+  const prefix = clickEvent ? '+' : '🤖 +';
+  f.innerHTML = prefix + fmt(bonus) + ' ' + cfg.label + '!<br>+' + sGain + ' 🌱' + extra;
+  f.style.left = fx + 'px';
+  f.style.top  = fy + 'px';
+  elMain.appendChild(f);
+  setTimeout(() => f.remove(), 1600);
+  g.remove();
+  const idx = activeGoldens.indexOf(entry);
+  if (idx >= 0) activeGoldens.splice(idx, 1);
+  render();
+  save();
+}
+
 function spawnGolden(tier = 'golden') {
   const cfg = TIER_CONFIG[tier] || TIER_CONFIG.golden;
   const rect = elMain.getBoundingClientRect();
@@ -961,34 +1375,17 @@ function spawnGolden(tier = 'golden') {
   g.style.animationDuration = GOLDEN_FALL_MS + 'ms, 1.6s, 1s';
   elMain.appendChild(g);
 
-  const removeTimer = setTimeout(() => g.remove(), GOLDEN_FALL_MS + 100);
+  const entry = { g, tier, cfg, removeTimer: null };
+  entry.removeTimer = setTimeout(() => {
+    g.remove();
+    const idx = activeGoldens.indexOf(entry);
+    if (idx >= 0) activeGoldens.splice(idx, 1);
+  }, GOLDEN_FALL_MS + 100);
+  activeGoldens.push(entry);
 
   g.addEventListener('click', (e) => {
     e.stopPropagation();
-    clearTimeout(removeTimer);
-    const bonus = goldenBonus() * cfg.bonusMult;
-    const sGain = seedsPerGolden();
-    state.bananas += bonus;
-    state.lifetime += bonus;
-    state.seeds += sGain;
-    const cascade = grantRare(tier);
-    const r = elMain.getBoundingClientRect();
-    const f = document.createElement('div');
-    f.className = 'bonus-float';
-    let extra = '';
-    if (cascade.diamond)    extra += '<br>+1 💎 DIAMOND!';
-    if (cascade.obsidian)   extra += '<br>+1 ⚫ OBSIDIAN!';
-    if (cascade.uranium)    extra += '<br>+1 ☢️ URANIUM!';
-    if (cascade.plasma)     extra += '<br>+1 🔮 PLASMA!';
-    if (cascade.darkenergy) extra += '<br>+1 🌑 DARK ENERGY!';
-    f.innerHTML = '+' + fmt(bonus) + ' ' + cfg.label + '!<br>+' + sGain + ' 🌱' + extra;
-    f.style.left = (e.clientX - r.left - 60) + 'px';
-    f.style.top  = (e.clientY - r.top  - 20) + 'px';
-    elMain.appendChild(f);
-    setTimeout(() => f.remove(), 1600);
-    g.remove();
-    render();
-    save();
+    catchGolden(entry, e);
   });
 }
 
@@ -1002,6 +1399,78 @@ function scheduleGolden() {
     scheduleGolden();
   }, delay);
 }
+
+// ---- Banana Museum ----
+const elMuseumOverlay  = document.getElementById('museumOverlay');
+const elSeeBananaBtn   = document.getElementById('seeBananaBtn');
+const elMuseumClose    = document.getElementById('museumClose');
+const elMuseumGrid     = document.getElementById('museumGrid');
+const elMuseumBig      = document.getElementById('museumBigBanana');
+const elMuseumCaption  = document.getElementById('museumCaption');
+const elMuseumCounter  = document.getElementById('museumCounter');
+
+let museumSelectedId = 'basic';
+
+function renderMuseum() {
+  // Counter
+  const unlockedCount = MUSEUM_ENTRIES.reduce((n, e) => n + (state.unlockedBananas[e.id] ? 1 : 0), 0);
+  elMuseumCounter.textContent = `Collection: ${unlockedCount} / ${MUSEUM_ENTRIES.length}`;
+
+  // Grid
+  elMuseumGrid.innerHTML = '';
+  MUSEUM_ENTRIES.forEach(entry => {
+    const unlocked = !!state.unlockedBananas[entry.id];
+    const cell = document.createElement('div');
+    let cls = 'museum-cell';
+    if (!unlocked) cls += ' locked';
+    if (entry.id === museumSelectedId) cls += ' selected';
+    if (unlocked && entry.tier !== undefined) cls += ' tier-' + (entry.tier || 'golden');
+    cell.className = cls;
+    cell.textContent = unlocked ? entry.icon : '❓';
+    cell.title = unlocked ? entry.name : '??? — ' + entry.hint;
+    cell.addEventListener('click', () => {
+      museumSelectedId = entry.id;
+      renderMuseum();
+    });
+    elMuseumGrid.appendChild(cell);
+  });
+
+  // Big display + caption
+  const sel = MUSEUM_ENTRY_BY_ID[museumSelectedId] || MUSEUM_ENTRIES[0];
+  const selUnlocked = !!state.unlockedBananas[sel.id];
+  // Strip any previous tier-* class, then apply the right one (if any).
+  elMuseumBig.className = 'museum-banana' + (selUnlocked ? '' : ' locked');
+  if (selUnlocked && sel.tier !== undefined) {
+    elMuseumBig.classList.add('tier-' + (sel.tier || 'golden'));
+  }
+  if (selUnlocked) {
+    elMuseumBig.textContent = sel.icon;
+    elMuseumCaption.innerHTML = `<span class="name">${sel.name}</span><span>${sel.hint.replace(/^.*to unlock\.$/, 'Now part of your collection.')}</span>`;
+  } else {
+    elMuseumBig.textContent = '❓';
+    elMuseumCaption.innerHTML = `<span class="name">??? — Locked</span><span>${sel.hint}</span>`;
+  }
+}
+
+function openMuseum() {
+  // Default selection to the basic banana if it's unlocked, else the first
+  // unlocked entry, else just whatever was selected last.
+  if (!state.unlockedBananas[museumSelectedId]) {
+    const firstUnlocked = MUSEUM_ENTRIES.find(e => state.unlockedBananas[e.id]);
+    if (firstUnlocked) museumSelectedId = firstUnlocked.id;
+  }
+  renderMuseum();
+  elMuseumOverlay.style.display = 'flex';
+}
+function closeMuseum() { elMuseumOverlay.style.display = 'none'; }
+elSeeBananaBtn.addEventListener('click', openMuseum);
+elMuseumClose.addEventListener('click', closeMuseum);
+elMuseumOverlay.addEventListener('click', (e) => {
+  if (e.target === elMuseumOverlay) closeMuseum();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && elMuseumOverlay.style.display === 'flex') closeMuseum();
+});
 
 setInterval(save, 5000);
 
