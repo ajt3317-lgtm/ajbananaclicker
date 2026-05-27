@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Banana Clicker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, #fff4a3 0%, #ffd54f 50%, #ffb300 100%);
+    min-height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .game {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    height: 100vh;
+    gap: 0;
+  }
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+  h1 {
+    font-size: 64px;
+    color: #6d4c00;
+    text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,.15);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .stats {
+    background: rgba(255,255,255,.6);
+    padding: 14px 28px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    border: 3px solid #c97f00;
+  }
+  .count {
+    font-size: 42px;
+    font-weight: bold;
+    color: #6d4c00;
+  }
+  .per-sec {
+    font-size: 16px;
+    color: #8b5e00;
+    margin-top: 4px;
+  }
+  .banana-btn {
+    font-size: 240px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,.3));
+    transition: transform .08s;
+  }
+  .banana-btn:hover { transform: scale(1.03) rotate(-2deg); }
+  .banana-btn:active { transform: scale(0.9) rotate(3deg); }
+
+  .float {
+    position: absolute;
+    pointer-events: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 0 #c97f00, -1px -1px 0 #c97f00, 1px -1px 0 #c97f00, -1px 1px 0 #c97f00;
+    animation: floatUp 1s ease-out forwards;
+    z-index: 10;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0)    scale(.6); opacity: 1; }
+    100% { transform: translateY(-120px) scale(1.4); opacity: 0; }
+  }
+
+  .shop {
+    background: rgba(109, 76, 0, .92);
+    color: #fff8dc;
+    padding: 20px 18px;
+    overflow-y: auto;
+    box-shadow: -4px 0 20px rgba(0,0,0,.25);
+  }
+  .shop h2 {
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 14px;
+    color: #ffd54f;
+    border-bottom: 2px dashed #ffd54f;
+    padding-bottom: 8px;
+  }
+  .item {
+    background: rgba(255,255,255,.08);
+    border: 2px solid #ffd54f;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .item:hover:not(.disabled) {
+    background: rgba(255,213,79,.25);
+    transform: translateX(-3px);
+  }
+  .item.disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+  .item .icon { font-size: 36px; text-align: center; }
+  .item .info .name { font-weight: bold; font-size: 16px; }
+  .item .info .desc { font-size: 12px; opacity: .8; }
+  .item .right { text-align: right; }
+  .item .cost { font-weight: bold; color: #ffd54f; font-size: 14px; }
+  .item .owned { font-size: 12px; opacity: .8; }
+
+  .golden {
+    position: absolute;
+    font-size: 64px;
+    cursor: pointer;
+    z-index: 20;
+    filter: drop-shadow(0 0 12px #fff59d) drop-shadow(0 0 24px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(1.15);
+    animation: goldenFall linear forwards, goldenSpin 1.6s linear infinite, goldenGlow 1s ease-in-out infinite alternate;
+    pointer-events: auto;
+  }
+  @keyframes goldenFall {
+    from { top: -80px; }
+    to   { top: 100%;  }
+  }
+  @keyframes goldenSpin {
+    from { transform: rotate(-15deg); }
+    50%  { transform: rotate(15deg);  }
+    to   { transform: rotate(-15deg); }
+  }
+  @keyframes goldenGlow {
+    from { filter: drop-shadow(0 0 8px #fff59d)  drop-shadow(0 0 16px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(1.1);  }
+    to   { filter: drop-shadow(0 0 18px #ffffff) drop-shadow(0 0 32px #ffeb3b) hue-rotate(-15deg) saturate(1.8) brightness(1.35); }
+  }
+  .seeds {
+    font-size: 16px;
+    color: #2e7d32;
+    margin-top: 4px;
+    font-weight: bold;
+  }
+  .seed-shop {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 2px dashed #81c784;
+  }
+  .seed-shop h2 {
+    color: #a5d6a7;
+    border-bottom-color: #a5d6a7;
+  }
+  .seed-item {
+    border-color: #81c784;
+  }
+  .seed-item:hover:not(.disabled) {
+    background: rgba(129, 199, 132, .25);
+  }
+  .seed-item .cost { color: #a5d6a7; }
+
+  .bonus-float {
+    position: absolute;
+    pointer-events: none;
+    font-size: 38px;
+    font-weight: bold;
+    color: #fff59d;
+    text-shadow: 2px 2px 0 #c97f00, -2px -2px 0 #c97f00, 2px -2px 0 #c97f00, -2px 2px 0 #c97f00, 0 0 16px #fff;
+    animation: floatUp 1.6s ease-out forwards;
+    z-index: 30;
+    white-space: nowrap;
+  }
+
+  .rebirth-btn {
+    margin-top: 14px;
+    background: linear-gradient(135deg, #8e24aa, #d500f9);
+    color: #fff;
+    border: 2px solid #ffeb3b;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.4);
+    box-shadow: 0 0 12px rgba(213, 0, 249, .6);
+  }
+  .rebirth-btn:hover:not(:disabled) { filter: brightness(1.15); }
+  .rebirth-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .rebirth-btn .sub {
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    margin-top: 2px;
+    opacity: .9;
+  }
+  .aura {
+    font-size: 16px;
+    color: #ce93d8;
+    margin-top: 4px;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(206,147,216,.5);
+  }
+
+  .reset {
+    margin-top: 14px;
+    background: #b71c1c;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  .reset:hover { background: #d32f2f; }
+  .admin-toggle {
+    margin-top: 8px;
+    background: #455a64;
+    color: #fff;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    font-size: 12px;
+  }
+  .admin-toggle:hover { background: #607d8b; }
+  .admin-panel {
+    margin-top: 8px;
+    background: rgba(0,0,0,.5);
+    border: 2px solid #ff5252;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    color: #fff;
+  }
+  .admin-panel h3 {
+    color: #ff8a80;
+    font-size: 14px;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #ff5252;
+    padding-bottom: 4px;
+  }
+  .admin-row { display: flex; gap: 4px; margin-bottom: 6px; }
+  .admin-row input {
+    flex: 1;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ff5252;
+    background: rgba(0,0,0,.3);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    min-width: 0;
+  }
+  .admin-row button {
+    background: #ff5252;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .admin-row button:hover { background: #ff7676; }
+  .admin-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .admin-actions button {
+    background: #6a1b9a;
+    color: #fff;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+  }
+  .admin-actions button:hover { background: #8e24aa; }
+</style>
+</head>
+<body>
+<div class="game">
+  <div class="main" id="main">
+    <h1>🍌 Banana Clicker 🍌</h1>
+    <div class="stats">
+      <div class="count"><span id="count">0</span> bananas</div>
+      <div class="per-sec"><span id="perSec">0</span>/sec &middot; <span id="perClick">1</span>/click</div>
+      <div class="seeds">🌱 <span id="seeds">0</span> seeds</div>
+      <div class="aura" id="auraStat" style="display:none;">✨ <span id="aura">0</span> aura (+<span id="auraPct">0</span>%)</div>
+    </div>
+    <button class="banana-btn" id="banana" aria-label="banana">🍌</button>
+  </div>
+  <div class="shop">
+    <h2>👆 Click Shop</h2>
+    <div id="clickItems"></div>
+    <h2 style="margin-top:18px;">🍌 Production</h2>
+    <div id="items"></div>
+    <div class="seed-shop">
+      <h2>🌱 Seed Upgrades</h2>
+      <div id="seedItems"></div>
+    </div>
+    <button class="rebirth-btn" id="rebirth" disabled>
+      ✨ Rebirth ✨
+      <span class="sub" id="rebirthSub">Reach 10.00 million lifetime bananas</span>
+    </button>
+    <button class="reset" id="reset">Reset Game</button>
+    <button class="admin-toggle" id="adminToggle">🛠️ Admin Panel</button>
+    <div class="admin-panel" id="adminPanel" style="display:none;">
+      <h3>🛠️ Admin Panel</h3>
+      <div class="admin-row">
+        <input type="text" id="adminBananas" placeholder="bananas">
+        <button data-admin="setBananas">Set 🍌</button>
+      </div>
+      <div class="admin-row">
+        <input type="text" id="adminSeeds" placeholder="seeds">
+        <button data-admin="setSeeds">Set 🌱</button>
+      </div>
+      <div class="admin-row">
+        <input type="text" id="adminAura" placeholder="aura">
+        <button data-admin="setAura">Set ✨</button>
+      </div>
+      <div class="admin-actions">
+        <button data-admin="add1K">+1K 🍌</button>
+        <button data-admin="add1M">+1M 🍌</button>
+        <button data-admin="add1B">+1B 🍌</button>
+        <button data-admin="add1T">+1T 🍌</button>
+        <button data-admin="x10">×10 🍌</button>
+        <button data-admin="x1000">×1000 🍌</button>
+        <button data-admin="oneEach">+1 each upgrade</button>
+        <button data-admin="tenEach">+10 each upgrade</button>
+        <button data-admin="spawnGolden">Spawn golden 🍌</button>
+        <button data-admin="maxSeeds">Max seed upgrades</button>
+        <button data-admin="infinite" style="grid-column:1/-1;background:#ffd54f;color:#6d4c00;font-weight:bold;">♾️ INFINITE ALL ♾️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SAVE_KEY = 'bananaClickerSave';
+
+const UPGRADES = [
+  { id: 'finger',   icon: '👆',  name: 'Extra Finger',        baseCost: 15,           type: 'click', power: 1 },
+  { id: 'monkey',   icon: '🐒',  name: 'Monkey Helper',       baseCost: 50,           type: 'auto',  power: 1 },
+  { id: 'tree',     icon: '🌴',  name: 'Banana Tree',         baseCost: 250,          type: 'auto',  power: 5 },
+  { id: 'farm',     icon: '🚜',  name: 'Banana Farm',         baseCost: 1200,         type: 'auto',  power: 25 },
+  { id: 'glove',    icon: '🥊',  name: 'Power Glove',         baseCost: 2500,         type: 'click', power: 10 },
+  { id: 'gauntlet', icon: '⚒️',  name: 'Banana Gauntlet',     baseCost: 50000,        type: 'click', power: 100 },
+  { id: 'mecharm',  icon: '🦾',  name: 'Mech Arm',            baseCost: 500000,       type: 'click', power: 1000 },
+  { id: 'gun',      icon: '🔫',  name: 'Banana Gun',          baseCost: 5000000,      type: 'click', power: 10000 },
+  { id: 'tank',     icon: '🛡️',  name: 'Banana Tank',         baseCost: 50000000,     type: 'click', power: 100000 },
+  { id: 'icbm',     icon: '☢️',  name: 'Banana ICBM',         baseCost: 500000000,    type: 'click', power: 1000000 },
+  { id: 'nuke',     icon: '💥',  name: 'Banana Nuke',         baseCost: 5000000000,   type: 'click', power: 10000000 },
+  { id: 'death',    icon: '💀',  name: 'Banana Death Star',   baseCost: 50000000000,  type: 'click', power: 100000000 },
+  { id: 'blackhole',icon: '🕳️',  name: 'Banana Black Hole',   baseCost: 500000000000,  type: 'click', power: 1000000000 },
+  { id: 'void',     icon: '🌀',  name: 'Banana Void',         baseCost: 5000000000000,  type: 'click', power: 10000000000 },
+  { id: 'bigrip',   icon: '🌪️',  name: 'Banana Big Rip',      baseCost: 50000000000000,  type: 'click', power: 100000000000 },
+  { id: 'atom',     icon: '⚛️',  name: 'Banana Atom',         baseCost: 3000,         type: 'auto',  power: 50 },
+  { id: 'truck',    icon: '🚚',  name: 'Delivery Truck',      baseCost: 8000,         type: 'auto',  power: 100 },
+  { id: 'factory',  icon: '🏭',  name: 'Banana Factory',      baseCost: 45000,        type: 'auto',  power: 500 },
+  { id: 'bank',     icon: '🏦',  name: 'Banana Bank',         baseCost: 250000,       type: 'auto',  power: 3000 },
+  { id: 'rocket',   icon: '🚀',  name: 'Banana Rocket',       baseCost: 1500000,      type: 'auto',  power: 20000 },
+  { id: 'gov',      icon: '🏛️',  name: 'Banana Government',   baseCost: 10000000,     type: 'auto',  power: 130000 },
+  { id: 'country',  icon: '🗺️',  name: 'Banana Country',      baseCost: 70000000,     type: 'auto',  power: 850000 },
+  { id: 'moon',     icon: '🌕',  name: 'Banana Moon',         baseCost: 500000000,    type: 'auto',  power: 5500000 },
+  { id: 'planet',   icon: '🪐',  name: 'Banana Planet',       baseCost: 3500000000,   type: 'auto',  power: 35000000 },
+  { id: 'sun',      icon: '☀️',  name: 'Banana Sun',          baseCost: 25000000000,  type: 'auto',  power: 230000000 },
+  { id: 'galaxy',   icon: '🌌',  name: 'Banana Galaxy',       baseCost: 175000000000, type: 'auto',  power: 1500000000 },
+  { id: 'cluster',  icon: '✴️',  name: 'Banana Supercluster', baseCost: 1200000000000, type: 'auto', power: 10000000000 },
+];
+
+const VERSE_NAMES = [
+  "Universe","Multiverse","Megaverse","Metaverse","Gigaverse","Terraverse","Exaverse","Petaverse",
+  "Zettaverse","Yottaverse","Vendekaverse","Xennaverse","Xenoverse","Wekaverse","Zennaverse","Hennaverse",
+  "Omniverse","Hyperverse","Outerverse","Omegaverse","Superverse","Macroverse","Ultraverse","Archverse",
+  "Archieverse","Paraverse","Alterverse","Alteredverse","Thetaverse","Delatverse","Delaverse","Elaverse",
+  "Rcoverse","Ecoverse","Cetaverse","Revendekaverse","Equalverse","Equivalentverse","Bluskulverse","Uloverse",
+  "Oververse","Eververse","Everlastingverse","Agelessverse","Timelessverse","Nothingverse","Nothingnessverse","Outsideverse",
+  "Outverse","Omniumverse","Ordverse","Devaverse","Evaverse","Venktaverse","Wanthaverse","Weccaverse",
+  "Quecxaverse","Xentaverse","Xentoverse","Tormayverse","Sameverse","Metroverse","Ronnaverse","Qiettaverse",
+  "Icosaverse","Hectoverse","Iquettaverse","Wuasiverse","Absoverse","Aloverse","Meskoverse","Panoverse",
+  "Hendaverse","Huittaverse","Huittraverse","Heptaverse","Aztecverse","Aarexverse","Apeiroverse","Rontoverse",
+  "Retaverse","Pelaverse","Pluriverse","Uriverse","Odekaverse","Jrettaverse","Jameaverse","Amosverse",
+  "Pectrolverse","Trolloverse","Amoniumverse","Umaverse","Yettaverse","Zetraverse","Zeptoverse","Yecataverse",
+  "Cetraverse","Fremaverse","Frentaverse","Drunaverse","Grinaverse","Echaverse","Ochaverse","Haloverse",
+  "Xrettaverse","Xepataverse","Fetaverse","Fetraverse","Bevvgtoverse","Abndiverse","Dokaverse","Duodexaverse",
+  "Extraverse","Eixstenceverse","Severalverse","Enormousverse","Positiveverse","Negativeverse","Negativerse","Geraverse",
+  "Kudoverse","Kaoverse","Activerse","Ltherverse","Lunoverse","Ludoverse","Jettaverse","Nedakaverse",
+  "Edakaverse","Sedakaverse","Dacaverse","Miniverse","Microverse","Tinyverse","Nullverse","Absoluteverse",
+  "Sourceverse","Trueverse","Zeroverse","Ziptoverse","Ingaverse","Verzaverse","Kegaverse","Eggverse",
+  "Pigaverse","Ultimateverse","Ultimaverse","All-Encompassingverse","Alluverse","Endverse","Finalverse","Lastverse",
+  "Beyonderverse","Supremeverse","Endlessverse","Infinityverse","Infiniteverse","Limitlessverse","Countlessverse","Boundlessverse",
+  "Unlimitedverse","Ultaverse","Ultiverse","Everythingverse","Anythingverse","Somethingverse","Carniverse","Verniverse",
+  "Cerniverse","Herniverse","Harniverse","Herbiverse","Harbiverse","Bitverse","Panverse","Yluriverse",
+];
+
+VERSE_NAMES.forEach((name, i) => {
+  const isClick = i % 2 === 1;
+  const tier = Math.floor(i / 2);
+  UPGRADES.push({
+    id: 'v_' + name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+    icon: isClick ? '💫' : '🌠',
+    name: 'Banana ' + name,
+    type: isClick ? 'click' : 'auto',
+    baseCost: (isClick ? 5e14 : 8e12) * Math.pow(10, tier),
+    power:    (isClick ? 1e12 : 7e10) * Math.pow(10, tier),
+  });
+});
+
+const PARTICLES = [
+  { id: 'proton',   icon: '🔴', name: 'Banana Proton',            type: 'click', baseCost: 200,           power: 5 },
+  { id: 'neutron',  icon: '⚪', name: 'Banana Neutron',           type: 'auto',  baseCost: 5000,          power: 75 },
+  { id: 'electron', icon: '🟢', name: 'Banana Electron',          type: 'click', baseCost: 8000,          power: 50 },
+  { id: 'muon',     icon: '💜', name: 'Banana Muon',              type: 'auto',  baseCost: 25000,         power: 300 },
+  { id: 'tau',      icon: '🔶', name: 'Banana Tau',               type: 'click', baseCost: 200000,        power: 500 },
+  { id: 'eneut',    icon: '❄️', name: 'Banana Electron Neutrino', type: 'auto',  baseCost: 120000,        power: 1500 },
+  { id: 'mneut',    icon: '💠', name: 'Banana Muon Neutrino',     type: 'click', baseCost: 1500000,       power: 5000 },
+  { id: 'tneut',    icon: '🔷', name: 'Banana Tau Neutrino',      type: 'auto',  baseCost: 700000,        power: 10000 },
+  { id: 'up',       icon: '🔼', name: 'Banana Up Quark',          type: 'click', baseCost: 15000000,      power: 50000 },
+  { id: 'down',     icon: '🔽', name: 'Banana Down Quark',        type: 'auto',  baseCost: 4000000,       power: 70000 },
+  { id: 'charm',    icon: '💎', name: 'Banana Charm Quark',       type: 'click', baseCost: 200000000,     power: 500000 },
+  { id: 'top',      icon: '🔝', name: 'Banana Top Quark',         type: 'auto',  baseCost: 25000000,      power: 500000 },
+  { id: 'bottom',   icon: '🔻', name: 'Banana Bottom Quark',      type: 'click', baseCost: 1500000000,    power: 5000000 },
+  { id: 'strange',  icon: '🌫️', name: 'Banana Strange Quark',     type: 'auto',  baseCost: 150000000,     power: 3000000 },
+  { id: 'gluon',    icon: '🟡', name: 'Banana Gluon',             type: 'click', baseCost: 15000000000,   power: 50000000 },
+  { id: 'photon',   icon: '💡', name: 'Banana Photon',            type: 'auto',  baseCost: 1000000000,    power: 20000000 },
+  { id: 'zboson',   icon: '⚡', name: 'Banana Z° Boson',      type: 'click', baseCost: 200000000000,  power: 500000000 },
+  { id: 'wplus',    icon: '➕', name: 'Banana W+ Boson',          type: 'auto',  baseCost: 5000000000,    power: 100000000 },
+  { id: 'wminus',   icon: '➖', name: 'Banana W- Boson',          type: 'click', baseCost: 1500000000000, power: 5000000000 },
+  { id: 'higgs',    icon: '🎯', name: 'Banana Higgs',             type: 'auto',  baseCost: 35000000000,   power: 800000000 },
+];
+PARTICLES.forEach(p => UPGRADES.push(p));
+
+const ANTIPARTICLES = [
+  { id: 'antiup',     icon: '🔺', name: 'Banana Antiup Quark',         type: 'click', baseCost: 150000000,    power: 500000 },
+  { id: 'antidown',   icon: '🔻', name: 'Banana Antidown Quark',       type: 'auto',  baseCost: 40000000,     power: 700000 },
+  { id: 'antitop',    icon: '🔼', name: 'Banana Antitop Quark',        type: 'click', baseCost: 250000000,    power: 5000000 },
+  { id: 'antibottom', icon: '🔽', name: 'Banana Antibottom Quark',     type: 'auto',  baseCost: 15000000000,  power: 50000000 },
+  { id: 'positron',   icon: '🟥', name: 'Banana Positron',             type: 'click', baseCost: 80000,        power: 500 },
+  { id: 'antimuon',   icon: '💟', name: 'Banana Antimuon',             type: 'auto',  baseCost: 250000,       power: 3000 },
+  { id: 'antitau',    icon: '🔸', name: 'Banana Antitau',              type: 'click', baseCost: 2000000,      power: 5000 },
+  { id: 'aeneut',     icon: '🧊', name: 'Banana Electron Antineutrino',type: 'auto',  baseCost: 1200000,      power: 15000 },
+  { id: 'amneut',     icon: '🔹', name: 'Banana Muon Antineutrino',    type: 'click', baseCost: 15000000,     power: 50000 },
+  { id: 'atneut',     icon: '🟫', name: 'Banana Tau Antineutrino',     type: 'auto',  baseCost: 7000000,      power: 100000 },
+  { id: 'antiatom',   icon: '🔯', name: 'Banana Antiatom',             type: 'auto',  baseCost: 30000,        power: 500 },
+];
+ANTIPARTICLES.forEach(p => UPGRADES.push(p));
+
+const SEED_UPGRADES = [
+  { id: 'bounty', icon: '💰', name: 'Seed Bounty',      baseCost: 3 },
+  { id: 'mult',   icon: '✨', name: 'Banana Multiplier', baseCost: 5 },
+  { id: 'golden', icon: '🌟', name: 'Golden Rain',      baseCost: 4 },
+];
+
+function seedCost(s, level) { return s.baseCost * Math.pow(2, level); }
+function seedsPerGolden() { return 1 + state.seedUp.bounty; }
+function bananaMult()     { return Math.pow(1.5, state.seedUp.mult); }
+function goldenRateMult() { return Math.pow(0.75, state.seedUp.golden); }
+
+function seedDesc(s) {
+  const lvl = state.seedUp[s.id];
+  if (s.id === 'bounty') return `+1 seed per golden 🍌 &middot; now ${seedsPerGolden()}/catch`;
+  if (s.id === 'mult')   return `+50% banana output &middot; now x${bananaMult().toFixed(2)}`;
+  if (s.id === 'golden') return `25% faster golden spawns &middot; now x${(1/goldenRateMult()).toFixed(2)}`;
+  return '';
+}
+
+let state = {
+  bananas: 0,
+  lifetime: 0,
+  seeds: 0,
+  aura: 0,
+  owned: {},
+  seedUp: {},
+};
+
+const REBIRTH_MIN_LIFETIME = 1e7;
+function auraMult()       { return 1 + state.aura * 0.05; }
+function auraGain(lt)     { return Math.max(0, Math.floor(Math.sqrt(lt / 1e6))); }
+function canRebirth()     { return state.lifetime >= REBIRTH_MIN_LIFETIME && auraGain(state.lifetime) > 0; }
+UPGRADES.forEach(u => state.owned[u.id] = 0);
+SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    state.bananas = s.bananas || 0;
+    state.lifetime = s.lifetime || 0;
+    state.seeds = s.seeds || 0;
+    state.aura = s.aura || 0;
+    UPGRADES.forEach(u => state.owned[u.id] = (s.owned && s.owned[u.id]) || 0);
+    SEED_UPGRADES.forEach(x => state.seedUp[x.id] = (s.seedUp && s.seedUp[x.id]) || 0);
+  } catch (e) {}
+}
+function save() {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+}
+
+function costOf(u) {
+  return Math.ceil(u.baseCost * Math.pow(1.15, state.owned[u.id]));
+}
+function perClick() {
+  let n = 1;
+  UPGRADES.filter(u => u.type === 'click').forEach(u => n += state.owned[u.id] * u.power);
+  return n * bananaMult() * auraMult();
+}
+function perSec() {
+  let n = 0;
+  UPGRADES.filter(u => u.type === 'auto').forEach(u => n += state.owned[u.id] * u.power);
+  return n * bananaMult() * auraMult();
+}
+
+const NUMBER_NAMES = [
+  { v: 1e120, n: 'noventrigintillion' },
+  { v: 1e117, n: 'octotrigintillion' },
+  { v: 1e114, n: 'septentrigintillion' },
+  { v: 1e111, n: 'sextrigintillion' },
+  { v: 1e108, n: 'quintrigintillion' },
+  { v: 1e105, n: 'quattuortrigintillion' },
+  { v: 1e102, n: 'tretrigintillion' },
+  { v: 1e99,  n: 'duotrigintillion' },
+  { v: 1e96,  n: 'untrigintillion' },
+  { v: 1e93,  n: 'trigintillion' },
+  { v: 1e90,  n: 'novemvigintillion' },
+  { v: 1e87,  n: 'octovigintillion' },
+  { v: 1e84,  n: 'septenvigintillion' },
+  { v: 1e81,  n: 'sexvigintillion' },
+  { v: 1e78,  n: 'quinvigintillion' },
+  { v: 1e75,  n: 'quattuorvigintillion' },
+  { v: 1e72,  n: 'trevigintillion' },
+  { v: 1e69,  n: 'duovigintillion' },
+  { v: 1e66,  n: 'unvigintillion' },
+  { v: 1e63,  n: 'vigintillion' },
+  { v: 1e60,  n: 'novemdecillion' },
+  { v: 1e57,  n: 'octodecillion' },
+  { v: 1e54,  n: 'septendecillion' },
+  { v: 1e51,  n: 'sexdecillion' },
+  { v: 1e48,  n: 'quindecillion' },
+  { v: 1e45,  n: 'quattuordecillion' },
+  { v: 1e42,  n: 'tredecillion' },
+  { v: 1e39,  n: 'duodecillion' },
+  { v: 1e36,  n: 'undecillion' },
+  { v: 1e33,  n: 'decillion' },
+  { v: 1e30,  n: 'nonillion' },
+  { v: 1e27,  n: 'octillion' },
+  { v: 1e24,  n: 'septillion' },
+  { v: 1e21,  n: 'sextillion' },
+  { v: 1e18,  n: 'quintillion' },
+  { v: 1e15,  n: 'quadrillion' },
+  { v: 1e12,  n: 'trillion' },
+  { v: 1e9,   n: 'billion' },
+  { v: 1e6,   n: 'million' },
+  { v: 1e3,   n: 'thousand' },
+];
+
+function fmt(n) {
+  if (!isFinite(n)) return '∞';
+  if (n < 1000) return Math.floor(n).toString();
+  for (const { v, n: name } of NUMBER_NAMES) {
+    if (n >= v) return (n / v).toFixed(2) + ' ' + name;
+  }
+  return Math.floor(n).toString();
+}
+
+const fmtShop = fmt;
+
+const elCount     = document.getElementById('count');
+const elPerSec    = document.getElementById('perSec');
+const elPerClk    = document.getElementById('perClick');
+const elSeeds     = document.getElementById('seeds');
+const elAuraStat  = document.getElementById('auraStat');
+const elAura      = document.getElementById('aura');
+const elAuraPct   = document.getElementById('auraPct');
+const elBanana    = document.getElementById('banana');
+const elItems     = document.getElementById('items');
+const elClickItems= document.getElementById('clickItems');
+const elSeedItems = document.getElementById('seedItems');
+const elMain      = document.getElementById('main');
+const elReset     = document.getElementById('reset');
+const elRebirth   = document.getElementById('rebirth');
+const elRebirthSub= document.getElementById('rebirthSub');
+
+const itemEls = {};
+const seedItemEls = {};
+
+function upgradeDesc(u) {
+  return '+' + fmt(u.power) + (u.type === 'click' ? ' per click' : ' bananas/sec');
+}
+
+function makeItem(u, parent) {
+  const div = document.createElement('div');
+  div.className = 'item';
+  div.innerHTML = `
+    <div class="icon">${u.icon}</div>
+    <div class="info">
+      <div class="name">${u.name}</div>
+      <div class="desc">${upgradeDesc(u)}</div>
+    </div>
+    <div class="right">
+      <div class="cost">🍌<span data-cost></span></div>
+      <div class="owned">x<span data-owned></span></div>
+    </div>`;
+  div.addEventListener('click', () => buy(u));
+  parent.appendChild(div);
+  itemEls[u.id] = {
+    root:  div,
+    cost:  div.querySelector('[data-cost]'),
+    owned: div.querySelector('[data-owned]'),
+  };
+}
+
+function buildShop() {
+  elClickItems.innerHTML = '';
+  elItems.innerHTML = '';
+  const sorted = [...UPGRADES].sort((a, b) => a.power - b.power);
+  sorted.forEach(u => makeItem(u, u.type === 'click' ? elClickItems : elItems));
+
+  elSeedItems.innerHTML = '';
+  SEED_UPGRADES.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'item seed-item';
+    div.innerHTML = `
+      <div class="icon">${s.icon}</div>
+      <div class="info">
+        <div class="name">${s.name}</div>
+        <div class="desc" data-sdesc></div>
+      </div>
+      <div class="right">
+        <div class="cost">🌱<span data-cost></span></div>
+        <div class="owned">Lv <span data-owned></span></div>
+      </div>`;
+    div.addEventListener('click', () => buySeed(s));
+    elSeedItems.appendChild(div);
+    seedItemEls[s.id] = {
+      root:  div,
+      cost:  div.querySelector('[data-cost]'),
+      owned: div.querySelector('[data-owned]'),
+      desc:  div.querySelector('[data-sdesc]'),
+    };
+  });
+}
+
+function updateShop() {
+  UPGRADES.forEach(u => {
+    const els = itemEls[u.id];
+    const c = costOf(u);
+    els.cost.textContent  = fmtShop(c);
+    els.owned.textContent = state.owned[u.id];
+    els.root.classList.toggle('disabled', state.bananas < c);
+  });
+  SEED_UPGRADES.forEach(s => {
+    const els = seedItemEls[s.id];
+    const lvl = state.seedUp[s.id];
+    const c = seedCost(s, lvl);
+    els.cost.textContent  = fmtShop(c);
+    els.owned.textContent = lvl;
+    els.desc.innerHTML = seedDesc(s);
+    els.root.classList.toggle('disabled', state.seeds < c);
+  });
+}
+
+function buySeed(s) {
+  const c = seedCost(s, state.seedUp[s.id]);
+  if (state.seeds < c) return;
+  state.seeds -= c;
+  state.seedUp[s.id]++;
+  render();
+  save();
+}
+
+function buy(u) {
+  const c = costOf(u);
+  if (state.bananas < c) return;
+  state.bananas -= c;
+  state.owned[u.id]++;
+  render();
+  save();
+}
+
+function render() {
+  elCount.textContent  = fmt(state.bananas);
+  elPerSec.textContent = fmt(perSec());
+  elPerClk.textContent = fmt(perClick());
+  elSeeds.textContent  = fmt(state.seeds);
+  if (state.aura > 0) {
+    elAuraStat.style.display = '';
+    elAura.textContent = fmt(state.aura);
+    elAuraPct.textContent = isFinite(state.aura) ? (state.aura * 5).toFixed(0) : '∞';
+  } else {
+    elAuraStat.style.display = 'none';
+  }
+  const gain = auraGain(state.lifetime);
+  if (canRebirth()) {
+    elRebirth.disabled = false;
+    elRebirthSub.textContent = `Gain ${fmt(gain)} ✨ aura (+${(gain*5).toFixed(0)}% banana output)`;
+  } else {
+    elRebirth.disabled = true;
+    if (state.lifetime < REBIRTH_MIN_LIFETIME) {
+      elRebirthSub.textContent = `Reach ${fmt(REBIRTH_MIN_LIFETIME)} lifetime bananas (${fmt(state.lifetime)} so far)`;
+    } else {
+      elRebirthSub.textContent = `Need more lifetime bananas for next aura point`;
+    }
+  }
+  updateShop();
+}
+
+function popFloat(x, y, text) {
+  const f = document.createElement('div');
+  f.className = 'float';
+  f.textContent = '+' + text;
+  f.style.left = (x - 20) + 'px';
+  f.style.top  = (y - 20) + 'px';
+  elMain.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+}
+
+elBanana.addEventListener('click', (e) => {
+  const gain = perClick();
+  state.bananas += gain;
+  state.lifetime += gain;
+  const rect = elMain.getBoundingClientRect();
+  popFloat(e.clientX - rect.left, e.clientY - rect.top, fmt(gain));
+  render();
+});
+
+elReset.addEventListener('click', () => {
+  if (!confirm('Reset ALL progress including aura and seeds? This cannot be undone.')) return;
+  state.bananas = 0;
+  state.lifetime = 0;
+  state.seeds = 0;
+  state.aura = 0;
+  UPGRADES.forEach(u => state.owned[u.id] = 0);
+  SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
+  save();
+  render();
+});
+
+const elAdminToggle = document.getElementById('adminToggle');
+const elAdminPanel  = document.getElementById('adminPanel');
+const ADMIN_PASSWORD = 'asdfgbanana';
+let adminUnlocked = false;
+elAdminToggle.addEventListener('click', () => {
+  if (!adminUnlocked) {
+    const entry = prompt('Enter admin password:');
+    if (entry !== ADMIN_PASSWORD) {
+      if (entry !== null) alert('Wrong password.');
+      return;
+    }
+    adminUnlocked = true;
+  }
+  elAdminPanel.style.display = elAdminPanel.style.display === 'none' ? '' : 'none';
+});
+
+function parseAdminNum(v) {
+  if (!v) return 0;
+  const n = Number(v.replace(/[,_\s]/g, ''));
+  return isFinite(n) && n >= 0 ? n : 0;
+}
+
+const ADMIN_ACTIONS = {
+  setBananas: () => { state.bananas = parseAdminNum(document.getElementById('adminBananas').value); },
+  setSeeds:   () => { state.seeds   = parseAdminNum(document.getElementById('adminSeeds').value); },
+  setAura:    () => { state.aura    = parseAdminNum(document.getElementById('adminAura').value); },
+  add1K: () => { state.bananas += 1e3;  state.lifetime += 1e3; },
+  add1M: () => { state.bananas += 1e6;  state.lifetime += 1e6; },
+  add1B: () => { state.bananas += 1e9;  state.lifetime += 1e9; },
+  add1T: () => { state.bananas += 1e12; state.lifetime += 1e12; },
+  x10:   () => { state.bananas *= 10; },
+  x1000: () => { state.bananas *= 1000; },
+  oneEach: () => UPGRADES.forEach(u => state.owned[u.id] += 1),
+  tenEach: () => UPGRADES.forEach(u => state.owned[u.id] += 10),
+  spawnGolden: () => spawnGolden(),
+  maxSeeds: () => SEED_UPGRADES.forEach(s => state.seedUp[s.id] += 10),
+  infinite: () => {
+    state.bananas = Infinity;
+    state.lifetime = Infinity;
+    state.seeds = Infinity;
+    state.aura = Infinity;
+    UPGRADES.forEach(u => state.owned[u.id] = 500);
+    SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 50);
+  },
+};
+
+elAdminPanel.addEventListener('click', (e) => {
+  const action = e.target.getAttribute('data-admin');
+  if (!action || !ADMIN_ACTIONS[action]) return;
+  ADMIN_ACTIONS[action]();
+  render();
+  save();
+});
+
+elRebirth.addEventListener('click', () => {
+  if (!canRebirth()) return;
+  const gain = auraGain(state.lifetime);
+  if (!confirm(`Rebirth for +${fmt(gain)} ✨ aura?\n\nYou will LOSE all bananas and shop upgrades.\nYou will KEEP seeds, seed upgrades, and aura.`)) return;
+  state.aura += gain;
+  state.bananas = 0;
+  state.lifetime = 0;
+  UPGRADES.forEach(u => state.owned[u.id] = 0);
+  save();
+  render();
+});
+
+let lastTick = performance.now();
+function tick(now) {
+  const dt = (now - lastTick) / 1000;
+  lastTick = now;
+  const gain = perSec() * dt;
+  if (gain > 0) {
+    state.bananas += gain;
+    state.lifetime += gain;
+    render();
+  }
+  requestAnimationFrame(tick);
+}
+
+const GOLDEN_MIN_BPS = 5;
+const GOLDEN_FALL_MS = 8000;
+
+function goldenBonus() {
+  const bps = perSec();
+  return Math.max(perClick() * 15, Math.floor(bps * 30), 50);
+}
+
+function spawnGolden() {
+  const rect = elMain.getBoundingClientRect();
+  const g = document.createElement('div');
+  g.className = 'golden';
+  g.textContent = '🍌';
+  g.style.left = (40 + Math.random() * (rect.width - 120)) + 'px';
+  g.style.animationDuration = GOLDEN_FALL_MS + 'ms, 1.6s, 1s';
+  elMain.appendChild(g);
+
+  const removeTimer = setTimeout(() => g.remove(), GOLDEN_FALL_MS + 100);
+
+  g.addEventListener('click', (e) => {
+    e.stopPropagation();
+    clearTimeout(removeTimer);
+    const bonus = goldenBonus();
+    const sGain = seedsPerGolden();
+    state.bananas += bonus;
+    state.lifetime += bonus;
+    state.seeds += sGain;
+    const r = elMain.getBoundingClientRect();
+    const f = document.createElement('div');
+    f.className = 'bonus-float';
+    f.innerHTML = '+' + fmt(bonus) + ' BONUS!<br>+' + sGain + ' 🌱';
+    f.style.left = (e.clientX - r.left - 60) + 'px';
+    f.style.top  = (e.clientY - r.top  - 20) + 'px';
+    elMain.appendChild(f);
+    setTimeout(() => f.remove(), 1600);
+    g.remove();
+    render();
+    save();
+  });
+}
+
+function scheduleGolden() {
+  const bps = perSec();
+  const base = bps >= GOLDEN_MIN_BPS ? (15000 + Math.random() * 25000) : 8000;
+  const bpsScale = bps >= GOLDEN_MIN_BPS ? Math.max(1, Math.log10(bps) * 0.6) : 1;
+  const delay = Math.max(800, (base / bpsScale) * goldenRateMult());
+  setTimeout(() => {
+    if (perSec() >= GOLDEN_MIN_BPS) spawnGolden();
+    scheduleGolden();
+  }, delay);
+}
+
+setInterval(save, 5000);
+
+load();
+buildShop();
+render();
+requestAnimationFrame(tick);
+scheduleGolden();
+</script>
+</body>
+</html>
