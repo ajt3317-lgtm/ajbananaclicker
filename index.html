@@ -87,6 +87,40 @@
     overflow-y: auto;
     box-shadow: -4px 0 20px rgba(0,0,0,.25);
   }
+  /* Each shop list scrolls independently so a long click-upgrade column
+     doesn't push the production / seeds / rebirth controls off-screen. */
+  #clickItems,
+  #items,
+  #seedItems {
+    overflow-y: auto;
+    padding-right: 4px;
+    border-radius: 6px;
+  }
+  #clickItems { max-height: 32vh; }
+  #items     { max-height: 32vh; }
+  #seedItems { max-height: 22vh; }
+  #clickItems::-webkit-scrollbar,
+  #items::-webkit-scrollbar,
+  #seedItems::-webkit-scrollbar {
+    width: 8px;
+  }
+  #clickItems::-webkit-scrollbar-track,
+  #items::-webkit-scrollbar-track,
+  #seedItems::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+  #clickItems::-webkit-scrollbar-thumb,
+  #items::-webkit-scrollbar-thumb,
+  #seedItems::-webkit-scrollbar-thumb {
+    background: #ffd54f;
+    border-radius: 4px;
+  }
+  #clickItems::-webkit-scrollbar-thumb:hover,
+  #items::-webkit-scrollbar-thumb:hover,
+  #seedItems::-webkit-scrollbar-thumb:hover {
+    background: #ffb300;
+  }
   .shop h2 {
     font-size: 26px;
     text-align: center;
@@ -165,6 +199,131 @@
     animation: goldenFall linear forwards, goldenSpin 1.6s linear infinite;
     filter: brightness(0.08) contrast(6) drop-shadow(0 0 22px #6a1b9a) drop-shadow(0 0 40px #000);
   }
+  /* Debt countdown banner — sticks at the top of the main pane while bananas
+     are negative. Pulses red to make sure the player notices. */
+  .debt-banner {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #b71c1c, #5a0000);
+    color: #fff;
+    padding: 10px 22px;
+    border: 3px solid #ff8a80;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(183, 28, 28, 0.6), 0 0 24px rgba(255, 82, 82, 0.5);
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    z-index: 100;
+    text-align: center;
+    animation: debt-pulse 0.8s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  .debt-banner .timer { font-size: 22px; }
+  @keyframes debt-pulse {
+    from { transform: translateX(-50%) scale(1);    box-shadow: 0 4px 16px rgba(183, 28, 28, 0.6), 0 0 16px rgba(255, 82, 82, 0.4); }
+    to   { transform: translateX(-50%) scale(1.06); box-shadow: 0 4px 16px rgba(183, 28, 28, 0.8), 0 0 32px rgba(255, 82, 82, 0.7); }
+  }
+
+  /* Game Over overlay — shown when the debt timer runs out. */
+  .loss-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, rgba(50,0,0,0.85), rgba(0,0,0,0.95));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30000;
+    backdrop-filter: blur(8px);
+    animation: museumFadeIn 0.35s ease-out;
+  }
+  .loss-modal {
+    background: linear-gradient(180deg, #2a0000, #1a0d0d);
+    border: 4px solid #ff5252;
+    border-radius: 20px;
+    padding: 36px 32px;
+    width: min(440px, 92vw);
+    text-align: center;
+    box-shadow: 0 0 60px rgba(255, 82, 82, 0.7), 0 0 100px rgba(183, 28, 28, 0.5);
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    color: #fff8dc;
+  }
+  .loss-modal h1 {
+    color: #ff5252;
+    font-size: 32px;
+    text-shadow: 0 0 12px #b71c1c, 0 0 24px #ff1744;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+  .loss-modal p {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+    opacity: 0.95;
+  }
+  .loss-modal .keep {
+    color: #6ee7a0;
+    font-size: 12px;
+    margin-bottom: 18px;
+    opacity: 0.9;
+  }
+  .loss-modal button {
+    background: linear-gradient(135deg, #ff5252, #b71c1c);
+    color: #fff;
+    border: 2px solid #ff8a80;
+    padding: 12px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  }
+  .loss-modal button:hover { filter: brightness(1.15); }
+
+  /* Evil banana — upside-down regular 🍌, no glow. Same fall animation as a
+     golden so it's easy to mistake for one at a glance. */
+  .evil-banana {
+    position: absolute;
+    font-size: 64px;
+    cursor: pointer;
+    z-index: 20;
+    /* scaleY(-1) flips it upside down. goldenFall animates `top` so it
+       composes cleanly with this transform. */
+    transform: scaleY(-1);
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.45));
+    animation: goldenFall linear forwards;
+    pointer-events: auto;
+    user-select: none;
+  }
+
+  /* Evil-tier falling bananas: same filter as their happy counterparts but
+     still upside-down so the player can spot the danger. */
+  .evil-banana.tier-golden     { filter: drop-shadow(0 0 12px #fff59d) drop-shadow(0 0 24px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(0.95); }
+  .evil-banana.tier-diamond    { filter: drop-shadow(0 0 14px #4fc3f7) drop-shadow(0 0 28px #1976d2) hue-rotate(190deg) saturate(2.2) brightness(0.95); }
+  .evil-banana.tier-obsidian   { filter: drop-shadow(0 0 14px #ba68c8) drop-shadow(0 0 28px #4a148c) hue-rotate(260deg) saturate(2.2) brightness(0.40); }
+  .evil-banana.tier-uranium    { filter: drop-shadow(0 0 14px #76ff03) drop-shadow(0 0 28px #00c853) hue-rotate(90deg) saturate(2.2) brightness(0.9); }
+  .evil-banana.tier-plasma     { filter: drop-shadow(0 0 14px #ff4081) drop-shadow(0 0 28px #d500f9) hue-rotate(290deg) saturate(2.5) brightness(0.95); }
+  .evil-banana.tier-darkenergy { filter: brightness(0.06) contrast(6) drop-shadow(0 0 22px #6a1b9a) drop-shadow(0 0 40px #000); }
+
+  /* Evil-banana museum display — upside down + tier filter so it matches the
+     falling visual. */
+  .museum-cell.evil    { transform: scaleY(-1); }
+  .museum-banana.evil  { transform: scaleY(-1); filter: drop-shadow(0 6px 8px rgba(0,0,0,0.45)); }
+  .museum-cell.evil.tier-golden     { filter: drop-shadow(0 0 4px #fff59d) drop-shadow(0 0 8px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(0.95); }
+  .museum-cell.evil.tier-diamond    { filter: drop-shadow(0 0 4px #4fc3f7) drop-shadow(0 0 8px #1976d2) hue-rotate(190deg) saturate(2.2) brightness(0.95); }
+  .museum-cell.evil.tier-obsidian   { filter: drop-shadow(0 0 4px #ba68c8) drop-shadow(0 0 8px #4a148c) hue-rotate(260deg) saturate(2.2) brightness(0.40); }
+  .museum-cell.evil.tier-uranium    { filter: drop-shadow(0 0 4px #76ff03) drop-shadow(0 0 8px #00c853) hue-rotate(90deg) saturate(2.2) brightness(0.9); }
+  .museum-cell.evil.tier-plasma     { filter: drop-shadow(0 0 4px #ff4081) drop-shadow(0 0 8px #d500f9) hue-rotate(290deg) saturate(2.5) brightness(0.95); }
+  .museum-cell.evil.tier-darkenergy { filter: brightness(0.06) contrast(6) drop-shadow(0 0 6px #6a1b9a) drop-shadow(0 0 12px #000); }
+  .museum-banana.evil.tier-golden     { filter: drop-shadow(0 0 12px #fff59d) drop-shadow(0 0 24px #ffd54f) hue-rotate(-15deg) saturate(1.6) brightness(0.95); }
+  .museum-banana.evil.tier-diamond    { filter: drop-shadow(0 0 14px #4fc3f7) drop-shadow(0 0 28px #1976d2) hue-rotate(190deg) saturate(2.2) brightness(0.95); }
+  .museum-banana.evil.tier-obsidian   { filter: drop-shadow(0 0 14px #ba68c8) drop-shadow(0 0 28px #4a148c) hue-rotate(260deg) saturate(2.2) brightness(0.40); }
+  .museum-banana.evil.tier-uranium    { filter: drop-shadow(0 0 14px #76ff03) drop-shadow(0 0 28px #00c853) hue-rotate(90deg) saturate(2.2) brightness(0.9); }
+  .museum-banana.evil.tier-plasma     { filter: drop-shadow(0 0 14px #ff4081) drop-shadow(0 0 28px #d500f9) hue-rotate(290deg) saturate(2.5) brightness(0.95); }
+  .museum-banana.evil.tier-darkenergy { filter: brightness(0.06) contrast(6) drop-shadow(0 0 22px #6a1b9a) drop-shadow(0 0 40px #000); }
+
   .seeds {
     font-size: 16px;
     color: #2e7d32;
@@ -528,6 +687,134 @@
     z-index: 1;
   }
   .museum-close:hover { background: #a3855a; }
+
+  /* Achievement toast — slides in from the top-right when one is earned */
+  .achievement-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%);
+    color: #fff8dc;
+    padding: 12px 16px;
+    border: 3px solid #ffd54f;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 20px rgba(255, 213, 79, 0.4);
+    z-index: 10000;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    max-width: 360px;
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    animation: ach-slide-in 0.4s ease-out;
+  }
+  .achievement-toast.leaving {
+    animation: ach-slide-out 0.6s ease-in forwards;
+  }
+  @keyframes ach-slide-in {
+    from { transform: translateX(400px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+  @keyframes ach-slide-out {
+    from { transform: translateX(0);    opacity: 1; }
+    to   { transform: translateX(400px); opacity: 0; }
+  }
+  .ach-toast-icon { font-size: 38px; line-height: 1; }
+  .ach-toast-head { font-size: 11px; color: #ffd54f; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+  .ach-toast-name { font-size: 16px; font-weight: bold; margin-top: 2px; }
+  .ach-toast-desc { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+  /* Achievements button — sits next to See Banana */
+  .achievements-btn {
+    margin-top: 8px;
+    padding: 8px 18px;
+    background: rgba(255, 213, 79, 0.85);
+    border: 3px solid #c97f00;
+    border-radius: 14px;
+    color: #5a4426;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform .12s, background .12s;
+  }
+  .achievements-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 235, 130, 0.95);
+  }
+
+  /* Achievements modal — reuses some museum styles in look but with its own scoped names */
+  .ach-modal {
+    background: linear-gradient(180deg, #2a1a4a 0%, #1a0d2e 100%);
+    border: 4px solid #ffd54f;
+    border-radius: 20px;
+    padding: 32px 28px 20px;
+    width: min(540px, 92vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    color: #fff8dc;
+  }
+  .ach-modal::-webkit-scrollbar { width: 8px; }
+  .ach-modal::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+  .ach-modal::-webkit-scrollbar-thumb { background: #ffd54f; border-radius: 4px; }
+  .ach-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd54f;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px rgba(255, 213, 79, 0.6);
+  }
+  .ach-counter {
+    color: #ffd54f;
+    font-size: 13px;
+    margin-bottom: 14px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+  .ach-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .ach-row {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(255, 213, 79, 0.3);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    transition: background .15s;
+  }
+  .ach-row.unlocked {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: rgba(255, 213, 79, 0.7);
+    box-shadow: 0 0 10px rgba(255, 213, 79, 0.25);
+  }
+  .ach-row.locked { opacity: 0.55; filter: grayscale(0.7); }
+  .ach-row-icon { font-size: 30px; text-align: center; }
+  .ach-row-name { font-weight: bold; font-size: 15px; color: #ffd54f; }
+  .ach-row.locked .ach-row-name { color: #aaa; }
+  .ach-row-desc { font-size: 12px; color: #cfc8b8; margin-top: 2px; }
+  .ach-close {
+    background: #c97f00;
+    color: #fff8dc;
+    border: none;
+    padding: 10px 26px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .ach-close:hover { background: #ffb300; }
 </style>
 </head>
 <body>
@@ -548,8 +835,12 @@
         &middot; <span title="Dark energy bananas">🌑 <span id="darkenergies">0</span></span>
       </div>
     </div>
+    <div class="debt-banner" id="debtBanner" style="display:none;">
+      😈 PAY OFF YOUR DEBT! <span class="timer" id="debtTimer">5:00</span>
+    </div>
     <button class="banana-btn" id="banana" aria-label="banana">🍌</button>
     <button class="see-banana-btn" id="seeBananaBtn" title="Open the Banana Museum to see what a banana actually looks like">🏛️ See Banana</button>
+    <button class="achievements-btn" id="achievementsBtn" title="View your achievements">🏆 Achievements</button>
   </div>
   <div class="shop">
     <h2>🤖 Auto Opener</h2>
@@ -600,9 +891,36 @@
         <button data-admin="spawnUranium">Spawn ☢️ uranium</button>
         <button data-admin="spawnPlasma" style="background:linear-gradient(135deg,#ffeb3b,#ff3d00);color:#3d0000;font-weight:bold;text-shadow:0 1px 0 rgba(255,255,255,0.4);box-shadow:0 0 8px rgba(255,193,7,0.7);">Spawn 🔮 plasma</button>
         <button data-admin="spawnDarkenergy">Spawn 🌑 dark energy</button>
+        <button data-admin="spawnEvil"          style="background:linear-gradient(135deg,#b71c1c,#1a0000);color:#ff8080;font-weight:bold;text-shadow:0 1px 0 rgba(0,0,0,0.5);">Spawn 😈 evil</button>
+        <button data-admin="spawnEvilGolden"    style="background:linear-gradient(135deg,#b71c1c,#ffd54f);color:#3d0000;font-weight:bold;">Spawn 😈 golden</button>
+        <button data-admin="spawnEvilDiamond"   style="background:linear-gradient(135deg,#b71c1c,#1976d2);color:#fff8dc;font-weight:bold;">Spawn 😈 diamond</button>
+        <button data-admin="spawnEvilObsidian"  style="background:linear-gradient(135deg,#b71c1c,#4a148c);color:#fff8dc;font-weight:bold;">Spawn 😈 obsidian</button>
+        <button data-admin="spawnEvilUranium"   style="background:linear-gradient(135deg,#b71c1c,#00c853);color:#fff8dc;font-weight:bold;">Spawn 😈 uranium</button>
+        <button data-admin="spawnEvilPlasma"    style="background:linear-gradient(135deg,#b71c1c,#d500f9);color:#fff8dc;font-weight:bold;">Spawn 😈 plasma</button>
+        <button data-admin="spawnEvilDarkenergy" style="background:linear-gradient(135deg,#b71c1c,#000);color:#ff8080;font-weight:bold;">Spawn 😈 dark energy</button>
+        <button data-admin="unlockMuseum" style="background:linear-gradient(135deg,#8b6f47,#c97f00);color:#fff8dc;font-weight:bold;">🏛️ Unlock all museum</button>
+        <button data-admin="unlockAchievements" style="background:linear-gradient(135deg,#7b1fa2,#ffd54f);color:#1a0d2e;font-weight:bold;">🏆 Unlock all achievements</button>
         <button data-admin="infinite" style="grid-column:1/-1;background:#ffd54f;color:#6d4c00;font-weight:bold;">♾️ INFINITE ALL ♾️</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="loss-overlay" id="lossOverlay" style="display:none;">
+  <div class="loss-modal">
+    <h1>💀 GAME OVER 💀</h1>
+    <p>You let your debt expire. The bank of bananas has come to collect.</p>
+    <p class="keep">Museum entries, achievements, and ✨ aura are <b>kept</b>.<br>Bananas, lifetime, seeds, upgrades, and Auto Opener are <b>wiped</b>.</p>
+    <button id="lossRestart">Start Over</button>
+  </div>
+</div>
+
+<div class="museum-overlay" id="achievementsOverlay" style="display:none;">
+  <div class="ach-modal">
+    <div class="ach-title">🏆 Achievements 🏆</div>
+    <div class="ach-counter" id="achCounter"></div>
+    <div class="ach-list" id="achList"></div>
+    <button class="ach-close" id="achClose">Close</button>
   </div>
 </div>
 
@@ -766,10 +1084,70 @@ let state = {
   // (including diamond/obsidian/uranium/plasma/dark-energy tiers) before they
   // hit the ground. Bought with bananas; cost grows exponentially.
   autoOpenerLevel: 0,
+  // Smart Targeting: one-time upgrade that teaches the Auto Opener to skip
+  // evil 😈 bananas. Without it, the auto-opener slaps every banana it sees,
+  // evils included — which means a single overlooked 🌑 can wipe you out.
+  autoOpenerSmart: false,
   // Banana Museum collection: id → true once the player has clicked or bought
   // that banana. Persists across rebirths so the museum stays full.
   unlockedBananas: {},
+  // Achievements: id → true once earned. Persists across rebirths.
+  achievements: {},
+  // Debt timer: Date.now() ms when bananas first went negative. 0 when not
+  // in debt. If bananas stay < 0 for longer than DEBT_TIMEOUT_MS, the player
+  // "loses" (everything except museum/achievements is wiped).
+  debtStartMs: 0,
 };
+
+// Time the player has to pay off a negative balance before they lose (5 min).
+const DEBT_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Catalog of achievements. Each has a `check(state)` invoked whenever a
+// relevant event fires; returning true triggers unlock + toast.
+let ACHIEVEMENTS;        // populated below after UPGRADES is finalized
+let ACHIEVEMENT_BY_ID;
+let LAST_UPGRADE_ID;     // id of the highest-power shop upgrade — used by
+                         //   the "Final Upgrade" achievement
+function buildAchievements() {
+  // Determine which upgrade counts as "the last" — highest power wins.
+  LAST_UPGRADE_ID = UPGRADES.reduce((best, u) => (u.power > best.power ? u : best)).id;
+  ACHIEVEMENTS = [
+    { id: 'firstClick',      icon: '👆', name: 'First Tap',           desc: 'Click the banana once.' },
+    { id: 'first100',        icon: '💯', name: 'Century',             desc: 'Reach 100 lifetime bananas.' },
+    { id: 'first1k',         icon: '🥉', name: 'A Thousand Strong',   desc: 'Reach 1,000 lifetime bananas.' },
+    { id: 'first1M',         icon: '🥈', name: 'Millionaire',         desc: 'Reach 1 million lifetime bananas.' },
+    { id: 'first1B',         icon: '🥇', name: 'Billionaire',         desc: 'Reach 1 billion lifetime bananas.' },
+    { id: 'first1T',         icon: '🏆', name: 'Trillionaire',        desc: 'Reach 1 trillion lifetime bananas.' },
+    { id: 'first1Qa',        icon: '🌠', name: 'Quadrillionaire',     desc: 'Reach 1 quadrillion lifetime bananas.' },
+    { id: 'first1Qi',        icon: '🌌', name: 'Quintillionaire',     desc: 'Reach 1 quintillion lifetime bananas.' },
+    { id: 'firstBuy',        icon: '🛒', name: 'First Upgrade',       desc: 'Buy any shop upgrade.' },
+    { id: 'firstAuto',       icon: '🤖', name: 'Automaton',           desc: 'Buy the Banana Auto Opener.' },
+    { id: 'firstSeed',       icon: '🌱', name: 'Green Thumb',         desc: 'Buy any seed upgrade.' },
+    { id: 'firstGolden',     icon: '🌟', name: 'Lucky Catch',         desc: 'Catch a golden 🍌 banana.' },
+    { id: 'firstDiamond',    icon: '💎', name: 'Cascade Bringer',     desc: 'Trigger a 💎 diamond banana.' },
+    { id: 'firstObsidian',   icon: '⚫', name: 'Obsidian Touch',      desc: 'Trigger a ⚫ obsidian banana.' },
+    { id: 'firstUranium',    icon: '☢️', name: 'Radioactive',         desc: 'Trigger a ☢️ uranium banana.' },
+    { id: 'firstPlasma',     icon: '🔮', name: 'Plasma Vision',       desc: 'Trigger a 🔮 plasma banana.' },
+    { id: 'firstDarkenergy', icon: '🌑', name: 'Cosmic Reach',        desc: 'Trigger a 🌑 dark energy banana.' },
+    { id: 'firstEvil',         icon: '😈', name: 'Deal With the Devil', desc: 'Click an upside-down evil banana (you lost some).' },
+    { id: 'evilGolden',        icon: '🌟', name: 'Cursed Glow',         desc: 'Click an upside-down golden banana.' },
+    { id: 'evilDiamond',       icon: '💎', name: 'Cracked Diamond',     desc: 'Click an upside-down diamond banana.' },
+    { id: 'evilObsidian',      icon: '⚫', name: 'Shattered Obsidian',  desc: 'Click an upside-down obsidian banana.' },
+    { id: 'evilUranium',       icon: '☢️', name: 'Critical Mass',       desc: 'Click an upside-down uranium banana.' },
+    { id: 'evilPlasma',        icon: '🔮', name: 'Plasma Inferno',      desc: 'Click an upside-down plasma banana.' },
+    { id: 'evilDarkenergy',    icon: '🌑', name: "Devil's Crown",       desc: 'Click an upside-down dark energy banana (you lost everything).' },
+    { id: 'firstRebirth',    icon: '✨', name: 'Reborn',              desc: 'Rebirth for the first time.' },
+    { id: 'firstAura',       icon: '🪐', name: 'Aura Awakens',        desc: 'Earn at least 1 ✨ aura.' },
+    { id: 'maxAuto',         icon: '⚙️', name: 'Auto-Opener Maxed',   desc: 'Reach Auto Opener level 100.' },
+    { id: 'allClicks',       icon: '👏', name: 'Click Master',        desc: 'Own at least one of every click upgrade.' },
+    { id: 'allAutos',        icon: '🏭', name: 'Production Lord',     desc: 'Own at least one of every production upgrade.' },
+    { id: 'lastUpgrade',     icon: '👑', name: 'Final Upgrade',       desc: 'Buy the highest-tier shop upgrade.' },
+    { id: 'allUpgrades',     icon: '🎖️', name: 'Completionist',      desc: 'Own at least one of every shop upgrade.' },
+    { id: 'allMuseum',       icon: '🏛️', name: 'Curator',            desc: 'Unlock every banana in the Museum.' },
+  ];
+  ACHIEVEMENT_BY_ID = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
+}
+buildAchievements();
 
 // Full catalog of bananas the museum can display. Built once at startup from
 // UPGRADES + the rare tiers + the base banana.
@@ -790,8 +1168,44 @@ const MUSEUM_ENTRIES = (() => {
   list.push({ id: 'uranium',    icon: '🍌', tier: 'uranium',    name: 'Uranium Banana',      hint: 'Cascade from 100 obsidians to unlock.' });
   list.push({ id: 'plasma',     icon: '🍌', tier: 'plasma',     name: 'Plasma Banana',       hint: 'Cascade from 100 uraniums to unlock.' });
   list.push({ id: 'darkenergy', icon: '🍌', tier: 'darkenergy', name: 'Dark Energy Banana',  hint: 'Cascade from 100 plasmas to unlock.' });
+  list.push({ id: 'evil',            icon: '🍌', evil: true,                              name: 'Evil Banana',              hint: 'Click an upside-down 🍌 to unlock — it steals 25% of your bananas.' });
+  list.push({ id: 'evilGolden',      icon: '🍌', evil: true, tier: 'golden',              name: 'Evil Golden Banana',       hint: 'Click an upside-down golden 🍌 to unlock — steals 60%.' });
+  list.push({ id: 'evilDiamond',     icon: '🍌', evil: true, tier: 'diamond',             name: 'Evil Diamond Banana',      hint: 'Click an upside-down 💎 to unlock — steals 100%.' });
+  list.push({ id: 'evilObsidian',    icon: '🍌', evil: true, tier: 'obsidian',            name: 'Evil Obsidian Banana',     hint: 'Click an upside-down ⚫ to unlock — steals 200%.' });
+  list.push({ id: 'evilUranium',     icon: '🍌', evil: true, tier: 'uranium',             name: 'Evil Uranium Banana',      hint: 'Click an upside-down ☢️ to unlock — steals 500%.' });
+  list.push({ id: 'evilPlasma',      icon: '🍌', evil: true, tier: 'plasma',              name: 'Evil Plasma Banana',       hint: 'Click an upside-down 🔮 to unlock — steals 2,000%.' });
+  list.push({ id: 'evilDarkenergy',  icon: '🍌', evil: true, tier: 'darkenergy',          name: 'Evil Dark Energy Banana',  hint: 'Click an upside-down 🌑 to unlock — steals 10,000%.' });
   return list;
 })();
+
+// Loss multiplier per evil tier — fraction of |current bananas| stolen. Plain
+// is mild; higher tiers can exceed 1.0 (driving the balance heavily negative).
+// darkenergy is catastrophic by design.
+const EVIL_LOSS_PCT = {
+  '':           0.25,    // 25 %
+  'golden':     0.60,    // 60 %
+  'diamond':    1.00,    // 100 % — wipes you to 0 (or further if already +)
+  'obsidian':   2.00,    // 200 % — drives you negative by 1× current
+  'uranium':    5.00,    // 500 %
+  'plasma':     20.00,   // 2000 %
+  'darkenergy': 100.00   // 10000 % — catastrophic
+};
+// Maps an evil banana's tier to its museum / achievement id.
+const EVIL_MUSEUM_ID = {
+  '': 'evil', 'golden': 'evilGolden', 'diamond': 'evilDiamond',
+  'obsidian': 'evilObsidian', 'uranium': 'evilUranium',
+  'plasma': 'evilPlasma', 'darkenergy': 'evilDarkenergy'
+};
+const EVIL_ACH_ID = {
+  '': 'firstEvil', 'golden': 'evilGolden', 'diamond': 'evilDiamond',
+  'obsidian': 'evilObsidian', 'uranium': 'evilUranium',
+  'plasma': 'evilPlasma', 'darkenergy': 'evilDarkenergy'
+};
+const EVIL_LABEL = {
+  '': 'EVIL', 'golden': 'EVIL GOLDEN', 'diamond': '💎 EVIL DIAMOND',
+  'obsidian': '⚫ EVIL OBSIDIAN', 'uranium': '☢️ EVIL URANIUM',
+  'plasma': '🔮 EVIL PLASMA', 'darkenergy': '🌑 EVIL DARK ENERGY'
+};
 const MUSEUM_ENTRY_BY_ID = Object.fromEntries(MUSEUM_ENTRIES.map(e => [e.id, e]));
 
 function unlockBanana(id) {
@@ -804,6 +1218,76 @@ function unlockBanana(id) {
   if (ov && ov.style.display === 'flex' && typeof renderMuseum === 'function') {
     renderMuseum();
   }
+  // Unlocking the final entry triggers the Curator achievement.
+  checkAchievements();
+}
+
+function showAchievementToast(a) {
+  const toast = document.createElement('div');
+  toast.className = 'achievement-toast';
+  toast.innerHTML = `
+    <div class="ach-toast-icon">${a.icon}</div>
+    <div class="ach-toast-body">
+      <div class="ach-toast-head">🏆 Achievement Unlocked!</div>
+      <div class="ach-toast-name">${a.name}</div>
+      <div class="ach-toast-desc">${a.desc}</div>
+    </div>`;
+  document.body.appendChild(toast);
+  // Slide out + remove after a few seconds
+  setTimeout(() => toast.classList.add('leaving'), 3600);
+  setTimeout(() => toast.remove(), 4200);
+}
+
+function unlockAchievement(id) {
+  if (!ACHIEVEMENT_BY_ID[id]) return;
+  if (state.achievements[id]) return;
+  state.achievements[id] = true;
+  showAchievementToast(ACHIEVEMENT_BY_ID[id]);
+  const ov = document.getElementById('achievementsOverlay');
+  if (ov && ov.style.display === 'flex' && typeof renderAchievements === 'function') {
+    renderAchievements();
+  }
+}
+
+// Re-evaluates every achievement criterion against current state. Cheap to
+// call from tick() since the dominant cost is a few `.every()` walks over
+// UPGRADES; misses are skipped by the early-out in unlockAchievement.
+function checkAchievements() {
+  if (!ACHIEVEMENTS) return;
+  if (state.lifetime > 0)      unlockAchievement('firstClick');
+  if (state.lifetime >= 100)   unlockAchievement('first100');
+  if (state.lifetime >= 1e3)   unlockAchievement('first1k');
+  if (state.lifetime >= 1e6)   unlockAchievement('first1M');
+  if (state.lifetime >= 1e9)   unlockAchievement('first1B');
+  if (state.lifetime >= 1e12)  unlockAchievement('first1T');
+  if (state.lifetime >= 1e15)  unlockAchievement('first1Qa');
+  if (state.lifetime >= 1e18)  unlockAchievement('first1Qi');
+  if (state.autoOpenerLevel > 0)    unlockAchievement('firstAuto');
+  if (state.autoOpenerLevel >= 100) unlockAchievement('maxAuto');
+  if (state.aura > 0)               unlockAchievement('firstAura');
+  // Any owned upgrade → firstBuy
+  if (UPGRADES.some(u => state.owned[u.id] > 0)) unlockAchievement('firstBuy');
+  // Any owned seed upgrade → firstSeed
+  if (SEED_UPGRADES.some(s => state.seedUp[s.id] > 0)) unlockAchievement('firstSeed');
+  // Last upgrade
+  if (state.owned[LAST_UPGRADE_ID] > 0) unlockAchievement('lastUpgrade');
+  // All-of-type checks
+  const allClicks = UPGRADES.filter(u => u.type === 'click').every(u => state.owned[u.id] > 0);
+  if (allClicks) unlockAchievement('allClicks');
+  const allAutos = UPGRADES.filter(u => u.type === 'auto').every(u => state.owned[u.id] > 0);
+  if (allAutos) unlockAchievement('allAutos');
+  const allUpgrades = UPGRADES.every(u => state.owned[u.id] > 0);
+  if (allUpgrades) unlockAchievement('allUpgrades');
+  // Museum completion
+  if (MUSEUM_ENTRIES.every(e => state.unlockedBananas[e.id])) unlockAchievement('allMuseum');
+  // Rare-tier first-catch checks (use stored counts so we don't depend on
+  // catchGolden firing first)
+  if (state.goldens      > 0) unlockAchievement('firstGolden');
+  if (state.diamonds     > 0) unlockAchievement('firstDiamond');
+  if (state.obsidians    > 0) unlockAchievement('firstObsidian');
+  if (state.uraniums     > 0) unlockAchievement('firstUranium');
+  if (state.plasmas      > 0) unlockAchievement('firstPlasma');
+  if (state.darkenergies > 0) unlockAchievement('firstDarkenergy');
 }
 
 const AUTO_OPENER_BASE_COST = 1000;
@@ -811,6 +1295,9 @@ const AUTO_OPENER_COST_GROWTH = 1.6;
 function autoOpenerCost() {
   return Math.ceil(AUTO_OPENER_BASE_COST * Math.pow(AUTO_OPENER_COST_GROWTH, state.autoOpenerLevel));
 }
+// One-time cost for the Smart Targeting upgrade. Steep so it's a deliberate
+// purchase, but not so steep that the player never gets there.
+const AUTO_OPENER_SMART_COST = 100000;
 
 const RARE_ORDER = ['goldens', 'diamonds', 'obsidians', 'uraniums', 'plasmas', 'darkenergies'];
 const RARE_TIER_BY_FIELD = { goldens:'golden', diamonds:'diamond', obsidians:'obsidian', uraniums:'uranium', plasmas:'plasma', darkenergies:'darkenergy' };
@@ -832,7 +1319,10 @@ function grantRare(startTier) {
 const REBIRTH_MIN_LIFETIME = 1e7;
 function auraMult()       { return 1 + state.aura * 0.05; }
 function auraGain(lt)     { return Math.max(0, Math.floor(Math.sqrt(lt / 1e6))); }
-function canRebirth()     { return state.lifetime >= REBIRTH_MIN_LIFETIME && auraGain(state.lifetime) > 0; }
+// Rebirth is gated on: (a) enough lifetime, (b) a non-negative current balance.
+// (b) prevents the "I have −2e+235 bananas but still claim a giant aura
+// payout" exploit — pay off the debt first.
+function canRebirth()     { return state.lifetime >= REBIRTH_MIN_LIFETIME && auraGain(state.lifetime) > 0 && state.bananas >= 0; }
 UPGRADES.forEach(u => state.owned[u.id] = 0);
 SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
 
@@ -854,7 +1344,10 @@ function load() {
     UPGRADES.forEach(u => state.owned[u.id] = (s.owned && s.owned[u.id]) || 0);
     SEED_UPGRADES.forEach(x => state.seedUp[x.id] = (s.seedUp && s.seedUp[x.id]) || 0);
     state.autoOpenerLevel = s.autoOpenerLevel || 0;
+    state.autoOpenerSmart = !!s.autoOpenerSmart;
+    state.debtStartMs     = +s.debtStartMs || 0;
     state.unlockedBananas = (s.unlockedBananas && typeof s.unlockedBananas === 'object') ? s.unlockedBananas : {};
+    state.achievements    = (s.achievements    && typeof s.achievements    === 'object') ? s.achievements    : {};
     // Back-fill: any already-owned upgrade / level / rare counts unlock the
     // matching museum entry so existing saves don't appear empty.
     if (state.lifetime > 0) state.unlockedBananas.basic = true;
@@ -1008,11 +1501,33 @@ function buildAutoOpenerItem() {
     </div>`;
   div.addEventListener('click', buyAutoOpener);
   parent.appendChild(div);
+
+  // Smart Targeting one-time upgrade card.
+  const smart = document.createElement('div');
+  smart.className = 'item auto-opener-item';
+  smart.style.cssText = 'border-color:#ff9800;background:rgba(255,152,0,0.10);';
+  smart.innerHTML = `
+    <div class="icon">🛡️</div>
+    <div class="info">
+      <div class="name">Smart Targeting</div>
+      <div class="desc" data-desc></div>
+    </div>
+    <div class="right">
+      <div class="cost">🍌<span data-cost></span></div>
+      <div class="owned" data-owned></div>
+    </div>`;
+  smart.addEventListener('click', buyAutoOpenerSmart);
+  parent.appendChild(smart);
+
   autoOpenerEls = {
-    root:  div,
-    cost:  div.querySelector('[data-cost]'),
-    owned: div.querySelector('[data-owned]'),
-    desc:  div.querySelector('[data-desc]'),
+    root:   div,
+    cost:   div.querySelector('[data-cost]'),
+    owned:  div.querySelector('[data-owned]'),
+    desc:   div.querySelector('[data-desc]'),
+    smart:        smart,
+    smartCost:    smart.querySelector('[data-cost]'),
+    smartOwned:   smart.querySelector('[data-owned]'),
+    smartDesc:    smart.querySelector('[data-desc]'),
   };
 }
 
@@ -1052,13 +1567,28 @@ function updateShop() {
   if (autoOpenerEls) {
     const c = autoOpenerCost();
     const lvl = state.autoOpenerLevel;
-    const opens = lvl === 1 ? '1 open' : `${lvl} opens`;
     autoOpenerEls.cost.textContent  = fmtShop(c);
     autoOpenerEls.owned.textContent = lvl;
+    const dangerNote = state.autoOpenerSmart
+      ? ' (smart — skips 😈)'
+      : ' <span style="color:#ff8a80;">(DUMB — also catches 😈!)</span>';
     autoOpenerEls.desc.innerHTML = lvl === 0
-      ? 'Auto-catches falling 🌟 bananas before they hit the ground. Upgrade to catch more at a time.'
-      : `Catches up to <b>${lvl}</b> falling banana${lvl === 1 ? '' : 's'} per second.`;
+      ? 'Auto-catches falling bananas before they hit the ground.' + dangerNote
+      : `Catches up to <b>${lvl}</b> falling banana${lvl === 1 ? '' : 's'} per second.` + dangerNote;
     autoOpenerEls.root.classList.toggle('disabled', state.bananas < c);
+
+    // Smart Targeting card
+    if (state.autoOpenerSmart) {
+      autoOpenerEls.smartCost.textContent  = '—';
+      autoOpenerEls.smartOwned.textContent = '✅ Active';
+      autoOpenerEls.smartDesc.innerHTML    = 'Robot now refuses to click 😈 evil bananas.';
+      autoOpenerEls.smart.classList.add('disabled');
+    } else {
+      autoOpenerEls.smartCost.textContent  = fmtShop(AUTO_OPENER_SMART_COST);
+      autoOpenerEls.smartOwned.textContent = 'Buy';
+      autoOpenerEls.smartDesc.innerHTML    = 'Stops the Auto Opener from clicking 😈 evil bananas. One-time purchase.';
+      autoOpenerEls.smart.classList.toggle('disabled', state.bananas < AUTO_OPENER_SMART_COST);
+    }
   }
   UPGRADES.forEach(u => {
     const els = itemEls[u.id];
@@ -1083,6 +1613,7 @@ function buySeed(s) {
   if (state.seeds < c) return;
   state.seeds -= c;
   state.seedUp[s.id]++;
+  checkAchievements();
   render();
   save();
 }
@@ -1093,6 +1624,7 @@ function buy(u) {
   state.bananas -= c;
   state.owned[u.id]++;
   unlockBanana(u.id);
+  checkAchievements();
   render();
   save();
 }
@@ -1103,6 +1635,17 @@ function buyAutoOpener() {
   state.bananas -= c;
   state.autoOpenerLevel++;
   unlockBanana('autoOpener');
+  checkAchievements();
+  render();
+  save();
+}
+
+function buyAutoOpenerSmart() {
+  if (state.autoOpenerSmart) return;
+  if (state.bananas < AUTO_OPENER_SMART_COST) return;
+  state.bananas -= AUTO_OPENER_SMART_COST;
+  state.autoOpenerSmart = true;
+  checkAchievements();
   render();
   save();
 }
@@ -1136,7 +1679,9 @@ function render() {
     elRebirthSub.textContent = `Gain ${fmt(gain)} ✨ aura (+${(gain*5).toFixed(0)}% banana output)`;
   } else {
     elRebirth.disabled = true;
-    if (state.lifetime < REBIRTH_MIN_LIFETIME) {
+    if (state.bananas < 0) {
+      elRebirthSub.textContent = `😈 You're in debt — pay back to a non-negative balance first.`;
+    } else if (state.lifetime < REBIRTH_MIN_LIFETIME) {
       elRebirthSub.textContent = `Reach ${fmt(REBIRTH_MIN_LIFETIME)} lifetime bananas (${fmt(state.lifetime)} so far)`;
     } else {
       elRebirthSub.textContent = `Need more lifetime bananas for next aura point`;
@@ -1160,6 +1705,7 @@ elBanana.addEventListener('click', (e) => {
   state.bananas += gain;
   state.lifetime += gain;
   unlockBanana('basic');
+  checkAchievements();
   const rect = elMain.getBoundingClientRect();
   popFloat(e.clientX - rect.left, e.clientY - rect.top, fmt(gain));
   render();
@@ -1178,7 +1724,10 @@ elReset.addEventListener('click', () => {
   state.plasmas = 0;
   state.darkenergies = 0;
   state.autoOpenerLevel = 0;
+  state.autoOpenerSmart = false;
+  state.debtStartMs = 0;
   state.unlockedBananas = {};
+  state.achievements = {};
   UPGRADES.forEach(u => state.owned[u.id] = 0);
   SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
   save();
@@ -1227,6 +1776,20 @@ const ADMIN_ACTIONS = {
   spawnUranium:    () => spawnGolden('uranium'),
   spawnPlasma:     () => spawnGolden('plasma'),
   spawnDarkenergy: () => spawnGolden('darkenergy'),
+  spawnEvil:           () => spawnEvilBanana(''),
+  spawnEvilGolden:     () => spawnEvilBanana('golden'),
+  spawnEvilDiamond:    () => spawnEvilBanana('diamond'),
+  spawnEvilObsidian:   () => spawnEvilBanana('obsidian'),
+  spawnEvilUranium:    () => spawnEvilBanana('uranium'),
+  spawnEvilPlasma:     () => spawnEvilBanana('plasma'),
+  spawnEvilDarkenergy: () => spawnEvilBanana('darkenergy'),
+  unlockMuseum: () => {
+    MUSEUM_ENTRIES.forEach(e => state.unlockedBananas[e.id] = true);
+    checkAchievements();
+  },
+  unlockAchievements: () => {
+    ACHIEVEMENTS.forEach(a => state.achievements[a.id] = true);
+  },
   maxSeeds: () => SEED_UPGRADES.forEach(s => state.seedUp[s.id] += 10),
   infinite: () => {
     state.bananas = Infinity;
@@ -1241,6 +1804,8 @@ const ADMIN_ACTIONS = {
     UPGRADES.forEach(u => state.owned[u.id] = 500);
     SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 50);
     state.autoOpenerLevel = 1000;
+    MUSEUM_ENTRIES.forEach(e => state.unlockedBananas[e.id] = true);
+    ACHIEVEMENTS.forEach(a => state.achievements[a.id] = true);
   },
 };
 
@@ -1261,12 +1826,15 @@ elRebirth.addEventListener('click', () => {
   state.lifetime = 0;
   state.autoOpenerLevel = 0;
   UPGRADES.forEach(u => state.owned[u.id] = 0);
+  unlockAchievement('firstRebirth');
+  checkAchievements();
   save();
   render();
 });
 
 let lastTick = performance.now();
 let autoOpenerTimer = 0;
+let achTickCounter = 0;
 function tick(now) {
   const dt = (now - lastTick) / 1000;
   lastTick = now;
@@ -1276,18 +1844,36 @@ function tick(now) {
     state.lifetime += gain;
     render();
   }
-  // Auto Opener: every real second, catch up to `level` falling bananas from
-  // the active list. Consume the timer even when level=0 so a fresh purchase
-  // doesn't trigger a backlog of catches.
+  // Check passive-lifetime achievements once per second instead of every frame.
+  achTickCounter += dt;
+  if (achTickCounter >= 1) {
+    achTickCounter = 0;
+    checkAchievements();
+  }
+  // Debt timer: when bananas are negative, run a countdown. If the player
+  // doesn't climb back to >= 0 in time, they lose. Uses Date.now() so the
+  // timer keeps counting even across reloads (a save-loaded debt that's
+  // already past the deadline triggers loss immediately on the next tick).
+  updateDebtTimer();
+  // Auto Opener: every real second, catch up to `level` falling bananas. By
+  // default the robot is DUMB and slaps every banana it sees, evils included
+  // (so that 😈 dark energy you didn't reach in time becomes the robot's
+  // problem too). Buying the Smart Targeting upgrade flips the behaviour to
+  // skip evils. Timer consumes even when level=0 so a fresh purchase doesn't
+  // trigger a backlog.
   autoOpenerTimer += dt;
   while (autoOpenerTimer >= 1) {
     autoOpenerTimer -= 1;
     const N = state.autoOpenerLevel;
-    if (N > 0 && activeGoldens.length > 0) {
-      let toCatch = Math.min(N, activeGoldens.length);
-      // Catch the oldest goldens first (they're closest to falling off-screen)
-      while (toCatch-- > 0 && activeGoldens.length > 0) {
-        catchGolden(activeGoldens[0]);
+    if (N > 0) {
+      let toCatch = N;
+      while (toCatch-- > 0) {
+        const target = state.autoOpenerSmart
+          ? activeGoldens.find(e => !e.evil)  // smart: skip evils
+          : activeGoldens[0];                  // dumb: oldest, evils included
+        if (!target) break;
+        if (target.evil) triggerEvilBanana(target);
+        else             catchGolden(target);
       }
     }
   }
@@ -1303,12 +1889,12 @@ function goldenBonus() {
 }
 
 const TIER_CONFIG = {
-  golden:     { cls: '',           bonusMult: 1,     label: 'BONUS' },
-  diamond:    { cls: 'diamond',    bonusMult: 10,    label: '💎 DIAMOND' },
-  obsidian:   { cls: 'obsidian',   bonusMult: 100,   label: '⚫ OBSIDIAN' },
-  uranium:    { cls: 'uranium',    bonusMult: 1000,  label: '☢️ URANIUM' },
-  plasma:     { cls: 'plasma',     bonusMult: 10000, label: '🔮 PLASMA' },
-  darkenergy: { cls: 'darkenergy', bonusMult: 100000,label: '🌑 DARK ENERGY' },
+  golden:     { cls: '',           bonusMult: 1,      repayPct: 0.25, label: 'BONUS' },
+  diamond:    { cls: 'diamond',    bonusMult: 10,     repayPct: 0.40, label: '💎 DIAMOND' },
+  obsidian:   { cls: 'obsidian',   bonusMult: 100,    repayPct: 0.55, label: '⚫ OBSIDIAN' },
+  uranium:    { cls: 'uranium',    bonusMult: 1000,   repayPct: 0.70, label: '☢️ URANIUM' },
+  plasma:     { cls: 'plasma',     bonusMult: 10000,  repayPct: 0.85, label: '🔮 PLASMA' },
+  darkenergy: { cls: 'darkenergy', bonusMult: 100000, repayPct: 0.99, label: '🌑 DARK ENERGY' },
 };
 
 // Active falling bananas the Auto Opener can target. Each entry holds the DOM
@@ -1320,10 +1906,25 @@ function catchGolden(entry, clickEvent) {
   entry._caught = true;
   const { g, tier, cfg, removeTimer } = entry;
   clearTimeout(removeTimer);
-  const bonus = goldenBonus() * cfg.bonusMult;
+  const baseBonus = goldenBonus() * cfg.bonusMult;
+  // Debt repayment: when bananas are negative, the gain scales with the debt
+  // magnitude. The math mirrors the user-spec for evil bananas: flip negative
+  // to positive, compute the gain (max of the normal bonus and a tier
+  // fraction of the debt), subtract from the magnitude, then re-apply the
+  // sign — i.e. catching a 🌑 dark energy banana while in debt erases ~99%
+  // of it in a single click.
   const sGain = seedsPerGolden();
-  state.bananas += bonus;
-  state.lifetime += bonus;
+  let bananaGain = baseBonus;
+  if (state.bananas < 0) {
+    const debt = Math.abs(state.bananas);
+    bananaGain = Math.max(baseBonus, debt * cfg.repayPct);
+    state.bananas = -(debt - bananaGain);  // -|debt| + gain → less negative
+  } else {
+    state.bananas += bananaGain;
+  }
+  // Lifetime only ever credits the normal bonus — debt-recovery doesn't
+  // inflate rebirth progress.
+  state.lifetime += baseBonus;
   state.seeds += sGain;
   const cascade = grantRare(tier);
   unlockBanana(tier);
@@ -1353,7 +1954,10 @@ function catchGolden(entry, clickEvent) {
   if (cascade.plasma)     extra += '<br>+1 🔮 PLASMA!';
   if (cascade.darkenergy) extra += '<br>+1 🌑 DARK ENERGY!';
   const prefix = clickEvent ? '+' : '🤖 +';
-  f.innerHTML = prefix + fmt(bonus) + ' ' + cfg.label + '!<br>+' + sGain + ' 🌱' + extra;
+  // Show the amplified debt-repayment gain in the float when it's bigger than
+  // the normal bonus, so the player sees why the dent in their debt is large.
+  const shownGain = bananaGain > baseBonus ? bananaGain : baseBonus;
+  f.innerHTML = prefix + fmt(shownGain) + ' ' + cfg.label + '!<br>+' + sGain + ' 🌱' + extra;
   f.style.left = fx + 'px';
   f.style.top  = fy + 'px';
   elMain.appendChild(f);
@@ -1395,9 +1999,120 @@ function scheduleGolden() {
   const bpsScale = bps >= GOLDEN_MIN_BPS ? Math.max(1, Math.log10(bps) * 0.6) : 1;
   const delay = Math.max(800, (base / bpsScale) * goldenRateMult());
   setTimeout(() => {
-    if (perSec() >= GOLDEN_MIN_BPS) spawnGolden();
+    if (perSec() >= GOLDEN_MIN_BPS) {
+      // 30 % of natural spawns are evil; tier is rolled separately.
+      if (Math.random() < 0.30) {
+        spawnEvilBanana(rollEvilTier());
+      } else {
+        spawnGolden();
+      }
+    }
     scheduleGolden();
   }, delay);
+}
+
+// ---- Evil Banana ----
+// An upside-down 🍌 that steals a tier-dependent percentage of your current
+// banana stash when clicked. Reuses the goldenFall animation + the
+// activeGoldens tracker so it shares the same lifecycle plumbing (the
+// auto-opener checks the `evil` flag and skips it).
+function spawnEvilBanana(tier = '') {
+  if (!(tier in EVIL_LOSS_PCT)) tier = '';
+  const rect = elMain.getBoundingClientRect();
+  const g = document.createElement('div');
+  g.className = 'evil-banana' + (tier ? ' tier-' + tier : '');
+  g.textContent = '🍌';
+  g.style.left = (40 + Math.random() * (rect.width - 120)) + 'px';
+  g.style.animationDuration = GOLDEN_FALL_MS + 'ms';
+  elMain.appendChild(g);
+
+  const entry = { g, tier, evil: true, removeTimer: null };
+  entry.removeTimer = setTimeout(() => {
+    g.remove();
+    const idx = activeGoldens.indexOf(entry);
+    if (idx >= 0) activeGoldens.splice(idx, 1);
+  }, GOLDEN_FALL_MS + 100);
+  activeGoldens.push(entry);
+
+  g.addEventListener('click', (e) => {
+    e.stopPropagation();
+    triggerEvilBanana(entry, e);
+  });
+}
+
+function triggerEvilBanana(entry, clickEvent) {
+  if (entry._caught) return;
+  entry._caught = true;
+  clearTimeout(entry.removeTimer);
+  const tier = entry.tier || '';
+  const pct  = EVIL_LOSS_PCT[tier] ?? 0.25;
+  // Compute the loss against the magnitude of current bananas so a negative
+  // balance still gets hammered (per user spec: flip negative→positive, add
+  // the loss, flip back to negative). For a positive balance this is the
+  // ordinary "subtract the loss". Both branches end up as `before - loss`
+  // mathematically, but the two-arm form keeps the algorithm visible.
+  const before = state.bananas;
+  const abs    = Math.abs(before);
+  const loss   = Math.max(1, abs * pct);
+  if (before < 0) {
+    // Negative path: |before| + loss, then re-sign negative.
+    state.bananas = -(abs + loss);
+  } else {
+    // Non-negative path: straightforward subtract (allowed to cross 0).
+    state.bananas = before - loss;
+  }
+  // Lifetime (the rebirth-progress total) also takes the hit — clicking an
+  // evil sets you back on the road to rebirth too. Capped at 0 so a single
+  // unlucky 🌑 doesn't permanently strand you with negative lifetime.
+  state.lifetime = Math.max(0, state.lifetime - loss);
+
+  // Red float — label varies per tier so the player sees what hit them.
+  // Click event is optional (auto-opener triggers don't have one); fall back
+  // to the falling-banana's own rectangle in that case.
+  const r = elMain.getBoundingClientRect();
+  const f = document.createElement('div');
+  f.className = 'bonus-float';
+  f.style.color = '#ff5252';
+  f.style.textShadow = '2px 2px 0 #5a0000, -2px -2px 0 #5a0000, 2px -2px 0 #5a0000, -2px 2px 0 #5a0000, 0 0 16px #b71c1c';
+  const prefix = clickEvent ? '😈 ' : '🤖💥 ';
+  f.innerHTML = prefix + EVIL_LABEL[tier] + '<br>−' + fmt(loss) + '!';
+  let fx, fy;
+  if (clickEvent) {
+    fx = clickEvent.clientX - r.left - 60;
+    fy = clickEvent.clientY - r.top  - 20;
+  } else {
+    const gRect = entry.g.getBoundingClientRect();
+    fx = gRect.left - r.left + gRect.width / 2 - 60;
+    fy = gRect.top  - r.top  + gRect.height / 2 - 20;
+  }
+  f.style.left = fx + 'px';
+  f.style.top  = fy + 'px';
+  elMain.appendChild(f);
+  setTimeout(() => f.remove(), 1600);
+
+  entry.g.remove();
+  const idx = activeGoldens.indexOf(entry);
+  if (idx >= 0) activeGoldens.splice(idx, 1);
+  unlockBanana(EVIL_MUSEUM_ID[tier]);
+  unlockAchievement('firstEvil');
+  unlockAchievement(EVIL_ACH_ID[tier]);
+  checkAchievements();
+  render();
+  save();
+}
+
+// Weighted roll for which evil tier spawns when the natural scheduler decides
+// to spawn an evil rather than a golden. Plain evil dominates; tier evils
+// are progressively rarer.
+function rollEvilTier() {
+  const r = Math.random();
+  if (r < 0.70)  return '';
+  if (r < 0.90)  return 'golden';
+  if (r < 0.97)  return 'diamond';
+  if (r < 0.99)  return 'obsidian';
+  if (r < 0.996) return 'uranium';
+  if (r < 0.999) return 'plasma';
+  return 'darkenergy';
 }
 
 // ---- Banana Museum ----
@@ -1425,6 +2140,7 @@ function renderMuseum() {
     if (!unlocked) cls += ' locked';
     if (entry.id === museumSelectedId) cls += ' selected';
     if (unlocked && entry.tier !== undefined) cls += ' tier-' + (entry.tier || 'golden');
+    if (unlocked && entry.evil) cls += ' evil';
     cell.className = cls;
     cell.textContent = unlocked ? entry.icon : '❓';
     cell.title = unlocked ? entry.name : '??? — ' + entry.hint;
@@ -1442,6 +2158,9 @@ function renderMuseum() {
   elMuseumBig.className = 'museum-banana' + (selUnlocked ? '' : ' locked');
   if (selUnlocked && sel.tier !== undefined) {
     elMuseumBig.classList.add('tier-' + (sel.tier || 'golden'));
+  }
+  if (selUnlocked && sel.evil) {
+    elMuseumBig.classList.add('evil');
   }
   if (selUnlocked) {
     elMuseumBig.textContent = sel.icon;
@@ -1470,6 +2189,110 @@ elMuseumOverlay.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && elMuseumOverlay.style.display === 'flex') closeMuseum();
+});
+
+// ---- Achievements Modal ----
+const elAchOverlay = document.getElementById('achievementsOverlay');
+const elAchBtn     = document.getElementById('achievementsBtn');
+const elAchClose   = document.getElementById('achClose');
+const elAchList    = document.getElementById('achList');
+const elAchCounter = document.getElementById('achCounter');
+
+function renderAchievements() {
+  const total = ACHIEVEMENTS.length;
+  const earned = ACHIEVEMENTS.reduce((n, a) => n + (state.achievements[a.id] ? 1 : 0), 0);
+  elAchCounter.textContent = `Earned: ${earned} / ${total}`;
+  elAchList.innerHTML = '';
+  ACHIEVEMENTS.forEach(a => {
+    const unlocked = !!state.achievements[a.id];
+    const row = document.createElement('div');
+    row.className = 'ach-row ' + (unlocked ? 'unlocked' : 'locked');
+    row.innerHTML = `
+      <div class="ach-row-icon">${unlocked ? a.icon : '🔒'}</div>
+      <div>
+        <div class="ach-row-name">${unlocked ? a.name : '???'}</div>
+        <div class="ach-row-desc">${a.desc}</div>
+      </div>`;
+    elAchList.appendChild(row);
+  });
+}
+function openAchievements() {
+  // Run a fresh check on open so anything earned passively is reflected.
+  checkAchievements();
+  renderAchievements();
+  elAchOverlay.style.display = 'flex';
+}
+function closeAchievements() { elAchOverlay.style.display = 'none'; }
+elAchBtn.addEventListener('click', openAchievements);
+elAchClose.addEventListener('click', closeAchievements);
+elAchOverlay.addEventListener('click', (e) => {
+  if (e.target === elAchOverlay) closeAchievements();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && elAchOverlay.style.display === 'flex') closeAchievements();
+});
+
+// ---- Debt Timer + Game Over ----
+const elDebtBanner = document.getElementById('debtBanner');
+const elDebtTimer  = document.getElementById('debtTimer');
+const elLossOverlay = document.getElementById('lossOverlay');
+const elLossRestart = document.getElementById('lossRestart');
+let lossTriggered = false;
+
+function updateDebtTimer() {
+  if (lossTriggered) return;
+  const now = Date.now();
+  if (state.bananas < 0) {
+    if (!state.debtStartMs) state.debtStartMs = now;
+    const remaining = DEBT_TIMEOUT_MS - (now - state.debtStartMs);
+    if (remaining <= 0) {
+      triggerLoss();
+      return;
+    }
+    elDebtBanner.style.display = 'block';
+    // Format mm:ss when >= 60 s remaining, otherwise show "s.s s".
+    const totalSec = remaining / 1000;
+    if (totalSec >= 60) {
+      const m = Math.floor(totalSec / 60);
+      const s = Math.floor(totalSec % 60).toString().padStart(2, '0');
+      elDebtTimer.textContent = m + ':' + s;
+    } else {
+      elDebtTimer.textContent = totalSec.toFixed(1) + 's';
+    }
+  } else {
+    if (state.debtStartMs) state.debtStartMs = 0;
+    elDebtBanner.style.display = 'none';
+  }
+}
+
+function triggerLoss() {
+  if (lossTriggered) return;
+  lossTriggered = true;
+  elDebtBanner.style.display = 'none';
+  // Wipe everything except permanent collection (museum, achievements, aura).
+  state.bananas = 0;
+  state.lifetime = 0;
+  state.seeds = 0;
+  state.goldens = 0;
+  state.diamonds = 0;
+  state.obsidians = 0;
+  state.uraniums = 0;
+  state.plasmas = 0;
+  state.darkenergies = 0;
+  state.autoOpenerLevel = 0;
+  state.autoOpenerSmart = false;
+  state.debtStartMs = 0;
+  UPGRADES.forEach(u => state.owned[u.id] = 0);
+  SEED_UPGRADES.forEach(s => state.seedUp[s.id] = 0);
+  save();
+  buildShop();
+  render();
+  elLossOverlay.style.display = 'flex';
+}
+
+elLossRestart.addEventListener('click', () => {
+  lossTriggered = false;
+  elLossOverlay.style.display = 'none';
 });
 
 setInterval(save, 5000);
